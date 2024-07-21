@@ -1,7 +1,0 @@
-module5
-=======
-
-.. automodule:: uno.module5
-   :members:
-   :undoc-members:
-   :show-inheritance:

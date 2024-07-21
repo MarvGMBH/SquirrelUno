@@ -1,16 +1,23 @@
-.. SquirrelUno documentation master file, created by
-   sphinx-quickstart on Tue Jul 21 2023.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Welcome to SquirrelUno's Documentation!
+========================================
 
-Welcome to SquirrelUno's documentation!
-=======================================
+Welcome to the documentation for SquirrelUno, a fun and engaging project by Dominik Krenn that aims to implement a unique version of the classic Uno card game. This documentation provides all the information you need to understand, install, and use SquirrelUno.
+
+.. warning::
+
+   **SquirrelUno is an indie hobby development project. It may not be safe and might never be completed. Use at your own risk.**
+
+Contents
+========
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-   uno
+   introduction
+   installation
+   usage
+   api
 
 Indices and tables
 ==================
