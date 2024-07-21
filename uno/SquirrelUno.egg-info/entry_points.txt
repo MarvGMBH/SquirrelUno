@@ -1,0 +1,3 @@
+[console_scripts]
+sql-uno = uno.__main__:main
+

@@ -1,0 +1,7 @@
+module3
+=======
+
+.. automodule:: uno.module3
+   :members:
+   :undoc-members:
+   :show-inheritance:

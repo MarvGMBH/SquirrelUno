@@ -1,0 +1,3 @@
+[console_scripts]
+squirreluno = uno.__main__:main
+
