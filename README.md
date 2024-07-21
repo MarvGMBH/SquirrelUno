@@ -27,8 +27,7 @@ To install the package directly from GitHub without cloning the repository, run:
 
 ```bash
 pip install git+https://github.com/MarvGMBH/SquirrelUno.git
-
-```markdown
+```
 ## Usage
 
 ### Running the Project
