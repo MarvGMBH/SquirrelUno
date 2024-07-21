@@ -7,4 +7,4 @@ SquirrelUno is a project by Dominik Krenn to implement a unique version of the U
 To install the package, run:
 
 ```bash
-pip install .
+pip install git+https://github.com/MarvGMBH/SquirrelUno.git
