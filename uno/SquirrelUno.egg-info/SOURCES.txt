@@ -1,7 +1,0 @@
-README.md
-setup.py
-uno/SquirrelUno.egg-info/PKG-INFO
-uno/SquirrelUno.egg-info/SOURCES.txt
-uno/SquirrelUno.egg-info/dependency_links.txt
-uno/SquirrelUno.egg-info/entry_points.txt
-uno/SquirrelUno.egg-info/top_level.txt

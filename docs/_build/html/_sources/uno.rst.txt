@@ -1,5 +1,5 @@
-uno
-===
+uno package
+============
 
 .. automodule:: uno
    :members:
