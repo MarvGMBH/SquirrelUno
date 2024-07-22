@@ -44,13 +44,24 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Documentation Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html#features">Features</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#local-installation">Local Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#github-installation">GitHub Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#verifying-the-installation">Verifying the Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html#running-the-project">Running the Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html#what-you-ll-see">What You’ll See</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html#detailed-explanation-of-commands">Detailed Explanation of Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html#overview">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html#console-entry-point">Console Entry Point</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html#script-entry">Script Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html#using-this-documentation">Using This Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html#feedback">Feedback</a></li>
 </ul>
 
         </div>
@@ -80,30 +91,68 @@
   <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
 <p>There are two main ways to install SquirrelUno: locally from the source code or directly from GitHub.</p>
-<p>### Local Installation</p>
+</section>
+<section id="local-installation">
+<h1>Local Installation<a class="headerlink" href="#local-installation" title="Link to this heading"></a></h1>
 <p>To install the package locally from the source code, follow these steps:</p>
 <ol class="arabic">
-<li><p>Clone the repository:</p>
+<li><p><strong>Clone the repository</strong>:</p>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/MarvGMBH/SquirrelUno.git
+<div><p>First, clone the SquirrelUno repository to your local machine using the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/MarvGMBH/SquirrelUno.git
 <span class="nb">cd</span><span class="w"> </span>SquirrelUno
 </pre></div>
 </div>
 </div></blockquote>
 </li>
-<li><p>Install the package in editable mode:</p>
+<li><p><strong>Create a virtual environment (optional but recommended)</strong>:</p>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+<div><p>It is recommended to create a virtual environment to avoid conflicts with other packages. You can create and activate a virtual environment using the following commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
+<span class="nb">source</span><span class="w"> </span>venv/bin/activate<span class="w">   </span><span class="c1"># On Windows use `venv\Scripts\activate`</span>
 </pre></div>
 </div>
 </div></blockquote>
 </li>
+<li><p><strong>Install the package in editable mode</strong>:</p>
+<blockquote>
+<div><p>Install the package in editable mode so you can make changes to the source code and have them reflected immediately. Use the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p><strong>Verify the installation</strong>:</p>
+<blockquote>
+<div><p>To verify that the installation was successful, run the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>uno<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>You should see the version information printed on the screen.</p>
+</div></blockquote>
+</li>
 </ol>
-<p>### GitHub Installation</p>
+</section>
+<section id="github-installation">
+<h1>GitHub Installation<a class="headerlink" href="#github-installation" title="Link to this heading"></a></h1>
 <p>To install the package directly from GitHub without cloning the repository, run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/MarvGMBH/SquirrelUno.git
 </pre></div>
 </div>
+<p>This command will fetch the latest version of SquirrelUno from the GitHub repository and install it on your machine.</p>
+<p>### Notes</p>
+<ul class="simple">
+<li><p><strong>Dependencies</strong>: All required dependencies will be installed automatically when you install the package.</p></li>
+<li><p><strong>Updates</strong>: To update the package, you can pull the latest changes from the repository and reinstall it in editable mode, or if installed directly from GitHub, simply run the installation command again.</p></li>
+</ul>
+</section>
+<section id="verifying-the-installation">
+<h1>Verifying the Installation<a class="headerlink" href="#verifying-the-installation" title="Link to this heading"></a></h1>
+<p>After installation, you can verify that everything is set up correctly by running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>uno<span class="w"> </span>--help
+</pre></div>
+</div>
+<p>You should see a help message describing the available commands and options for SquirrelUno.</p>
 </section>
 
 

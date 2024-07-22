@@ -43,13 +43,63 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Documentation Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html#features">Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html#local-installation">Local Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html#github-installation">GitHub Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html#verifying-the-installation">Verifying the Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html#running-the-project">Running the Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html#what-you-ll-see">What You’ll See</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html#detailed-explanation-of-commands">Detailed Explanation of Commands</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#console-entry-point">Console Entry Point</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#uno.__main__.CLI"><code class="docutils literal notranslate"><span class="pre">CLI</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#uno.__main__.CLI.handle_no_command"><code class="docutils literal notranslate"><span class="pre">CLI.handle_no_command()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uno.__main__.CLI.parse_args"><code class="docutils literal notranslate"><span class="pre">CLI.parse_args()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uno.__main__.CLI.run"><code class="docutils literal notranslate"><span class="pre">CLI.run()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uno.__main__.CLI.version_info"><code class="docutils literal notranslate"><span class="pre">CLI.version_info()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#script-entry">Script Entry</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#uno.Card"><code class="docutils literal notranslate"><span class="pre">Card</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#uno.Card.color"><code class="docutils literal notranslate"><span class="pre">Card.color</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uno.Card.value"><code class="docutils literal notranslate"><span class="pre">Card.value</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#uno.GameMaster"><code class="docutils literal notranslate"><span class="pre">GameMaster</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#uno.GameMaster.players"><code class="docutils literal notranslate"><span class="pre">GameMaster.players</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uno.GameMaster.deck"><code class="docutils literal notranslate"><span class="pre">GameMaster.deck</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uno.GameMaster.add_player"><code class="docutils literal notranslate"><span class="pre">GameMaster.add_player()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uno.GameMaster.create_deck"><code class="docutils literal notranslate"><span class="pre">GameMaster.create_deck()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uno.GameMaster.shuffle_deck"><code class="docutils literal notranslate"><span class="pre">GameMaster.shuffle_deck()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#uno.JokerCard"><code class="docutils literal notranslate"><span class="pre">JokerCard</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#uno.NumCard"><code class="docutils literal notranslate"><span class="pre">NumCard</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#uno.Player"><code class="docutils literal notranslate"><span class="pre">Player</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#uno.Player.name"><code class="docutils literal notranslate"><span class="pre">Player.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uno.Player.hand"><code class="docutils literal notranslate"><span class="pre">Player.hand</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uno.Player.draw_card"><code class="docutils literal notranslate"><span class="pre">Player.draw_card()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uno.Player.show_hand"><code class="docutils literal notranslate"><span class="pre">Player.show_hand()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#uno.UIDObj"><code class="docutils literal notranslate"><span class="pre">UIDObj</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#uno.UIDObj.uid"><code class="docutils literal notranslate"><span class="pre">UIDObj.uid</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">UIDObj.uid</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#uno.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#using-this-documentation">Using This Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#feedback">Feedback</a></li>
 </ul>
 
         </div>
@@ -78,17 +128,76 @@
              
   <section id="api-documentation">
 <h1>API Documentation<a class="headerlink" href="#api-documentation" title="Link to this heading"></a></h1>
-<p>This section provides detailed API documentation for the SquirrelUno project. Each class and method is described in detail to help you understand how to use them effectively.</p>
-<p>Entry point for the game and definitions for various classes.</p>
+<p>Welcome to the API documentation for the SquirrelUno project. This section provides a comprehensive guide to the project’s codebase, detailing each class and method to help you understand and use them effectively. Whether you’re contributing to the project or looking to extend its functionality, this documentation is designed to support your development needs.</p>
+</section>
+<section id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h1>
+<p>The SquirrelUno project is structured to facilitate easy understanding and extension. The core functionality is divided across several modules, each responsible for different aspects of the game. This documentation covers the primary entry points and key components of the project.</p>
+</section>
+<section id="console-entry-point">
+<h1>Console Entry Point<a class="headerlink" href="#console-entry-point" title="Link to this heading"></a></h1>
+<p>The console entry point, defined in <cite>__main__.py</cite>, handles the command-line interface (CLI) for SquirrelUno. This module allows users to interact with the game through various commands and options.</p>
+<p id="module-uno.__main__">Entry point for the uno package to run from Console</p>
 <dl class="py class">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uno.</span></span><span class="sig-name descname"><span class="pre">Card</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno.html#Card"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dt class="sig sig-object py" id="uno.__main__.CLI">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uno.__main__.</span></span><span class="sig-name descname"><span class="pre">CLI</span></span><a class="reference internal" href="_modules/uno/__main__.html#CLI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uno.__main__.CLI" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Command Line Interface for the Uno package.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="uno.__main__.CLI.handle_no_command">
+<span class="sig-name descname"><span class="pre">handle_no_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno/__main__.html#CLI.handle_no_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uno.__main__.CLI.handle_no_command" title="Link to this definition"></a></dt>
+<dd><p>Handle the case where no command is provided.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> – Parsed arguments</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="uno.__main__.CLI.parse_args">
+<span class="sig-name descname"><span class="pre">parse_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno/__main__.html#CLI.parse_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uno.__main__.CLI.parse_args" title="Link to this definition"></a></dt>
+<dd><p>Parse the command line arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Parsed arguments</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="uno.__main__.CLI.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno/__main__.html#CLI.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uno.__main__.CLI.run" title="Link to this definition"></a></dt>
+<dd><p>Execute the appropriate function based on the parsed arguments.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="uno.__main__.CLI.version_info">
+<span class="sig-name descname"><span class="pre">version_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno/__main__.html#CLI.version_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uno.__main__.CLI.version_info" title="Link to this definition"></a></dt>
+<dd><p>Display version information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> – Parsed arguments</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="script-entry">
+<h1>Script Entry<a class="headerlink" href="#script-entry" title="Link to this heading"></a></h1>
+<p>The script entry point, defined in <cite>__init__.py</cite>, initializes the SquirrelUno package and contains the main logic for starting the game. This module ensures that all necessary components are correctly set up and ready to use.</p>
+<p id="module-uno">Entry point for the game and definitions for various classes.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="uno.Card">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uno.</span></span><span class="sig-name descname"><span class="pre">Card</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno.html#Card"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uno.Card" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class representing a card in the Uno game.</p>
 <p>It has all base interactions for a card.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">color</span></span></dt>
+<dt class="sig sig-object py" id="uno.Card.color">
+<span class="sig-name descname"><span class="pre">color</span></span><a class="headerlink" href="#uno.Card.color" title="Link to this definition"></a></dt>
 <dd><p>The color of the card (e.g., red, yellow, green, blue).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -98,8 +207,8 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">value</span></span></dt>
+<dt class="sig sig-object py" id="uno.Card.value">
+<span class="sig-name descname"><span class="pre">value</span></span><a class="headerlink" href="#uno.Card.value" title="Link to this definition"></a></dt>
 <dd><p>The value or number of the card.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -111,82 +220,82 @@
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uno.</span></span><span class="sig-name descname"><span class="pre">GameMaster</span></span><a class="reference internal" href="_modules/uno.html#GameMaster"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dt class="sig sig-object py" id="uno.GameMaster">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uno.</span></span><span class="sig-name descname"><span class="pre">GameMaster</span></span><a class="reference internal" href="_modules/uno.html#GameMaster"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uno.GameMaster" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class responsible for managing the Uno game.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">players</span></span></dt>
+<dt class="sig sig-object py" id="uno.GameMaster.players">
+<span class="sig-name descname"><span class="pre">players</span></span><a class="headerlink" href="#uno.GameMaster.players" title="Link to this definition"></a></dt>
 <dd><p>The players in the game.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of Player</p>
+<dd class="field-odd"><p>list of <a class="reference internal" href="#uno.Player" title="uno.Player">Player</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">deck</span></span></dt>
+<dt class="sig sig-object py" id="uno.GameMaster.deck">
+<span class="sig-name descname"><span class="pre">deck</span></span><a class="headerlink" href="#uno.GameMaster.deck" title="Link to this definition"></a></dt>
 <dd><p>The deck of cards used in the game.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of Card</p>
+<dd class="field-odd"><p>list of <a class="reference internal" href="#uno.Card" title="uno.Card">Card</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">add_player</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">player</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno.html#GameMaster.add_player"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dt class="sig sig-object py" id="uno.GameMaster.add_player">
+<span class="sig-name descname"><span class="pre">add_player</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">player</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno.html#GameMaster.add_player"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uno.GameMaster.add_player" title="Link to this definition"></a></dt>
 <dd><p>Adds a player to the game.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>player</strong> (<em>Player</em>) – The player to add to the game. :noindex:</p>
+<dd class="field-odd"><p><strong>player</strong> (<a class="reference internal" href="#uno.Player" title="uno.Player"><em>Player</em></a>) – The player to add to the game. :noindex:</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">create_deck</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno.html#GameMaster.create_deck"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dt class="sig sig-object py" id="uno.GameMaster.create_deck">
+<span class="sig-name descname"><span class="pre">create_deck</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno.html#GameMaster.create_deck"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uno.GameMaster.create_deck" title="Link to this definition"></a></dt>
 <dd><p>Creates a standard Uno deck. :noindex:</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">shuffle_deck</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno.html#GameMaster.shuffle_deck"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dt class="sig sig-object py" id="uno.GameMaster.shuffle_deck">
+<span class="sig-name descname"><span class="pre">shuffle_deck</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno.html#GameMaster.shuffle_deck"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uno.GameMaster.shuffle_deck" title="Link to this definition"></a></dt>
 <dd><p>Shuffles the deck of cards. :noindex:</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uno.</span></span><span class="sig-name descname"><span class="pre">JokerCard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno.html#JokerCard"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Card</span></code></p>
+<dt class="sig sig-object py" id="uno.JokerCard">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uno.</span></span><span class="sig-name descname"><span class="pre">JokerCard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno.html#JokerCard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uno.JokerCard" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#uno.Card" title="uno.Card"><code class="xref py py-class docutils literal notranslate"><span class="pre">Card</span></code></a></p>
 <p>A card with special events for the game.</p>
 <p>This class represents special cards like ‘Wild’ and ‘Wild Draw Four’.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uno.</span></span><span class="sig-name descname"><span class="pre">NumCard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno.html#NumCard"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Card</span></code></p>
+<dt class="sig sig-object py" id="uno.NumCard">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uno.</span></span><span class="sig-name descname"><span class="pre">NumCard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno.html#NumCard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uno.NumCard" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#uno.Card" title="uno.Card"><code class="xref py py-class docutils literal notranslate"><span class="pre">Card</span></code></a></p>
 <p>The basic colored number card for Uno.</p>
 <p>Inherits from Card and represents a standard number card in the game.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uno.</span></span><span class="sig-name descname"><span class="pre">Player</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno.html#Player"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">UIDObj</span></code></p>
+<dt class="sig sig-object py" id="uno.Player">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uno.</span></span><span class="sig-name descname"><span class="pre">Player</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno.html#Player"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uno.Player" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#uno.UIDObj" title="uno.UIDObj"><code class="xref py py-class docutils literal notranslate"><span class="pre">UIDObj</span></code></a></p>
 <p>A class representing a player in the Uno game.</p>
 <p>Inherits from UIDObj to provide a unique identifier for each player.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">name</span></span></dt>
+<dt class="sig sig-object py" id="uno.Player.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#uno.Player.name" title="Link to this definition"></a></dt>
 <dd><p>The name of the player.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -196,30 +305,30 @@
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">hand</span></span></dt>
+<dt class="sig sig-object py" id="uno.Player.hand">
+<span class="sig-name descname"><span class="pre">hand</span></span><a class="headerlink" href="#uno.Player.hand" title="Link to this definition"></a></dt>
 <dd><p>The cards held by the player.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of Card</p>
+<dd class="field-odd"><p>list of <a class="reference internal" href="#uno.Card" title="uno.Card">Card</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">draw_card</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">card</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno.html#Player.draw_card"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dt class="sig sig-object py" id="uno.Player.draw_card">
+<span class="sig-name descname"><span class="pre">draw_card</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">card</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno.html#Player.draw_card"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uno.Player.draw_card" title="Link to this definition"></a></dt>
 <dd><p>Adds a card to the player’s hand.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>card</strong> (<em>Card</em>) – The card to add to the hand. :noindex:</p>
+<dd class="field-odd"><p><strong>card</strong> (<a class="reference internal" href="#uno.Card" title="uno.Card"><em>Card</em></a>) – The card to add to the hand. :noindex:</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">show_hand</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno.html#Player.show_hand"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dt class="sig sig-object py" id="uno.Player.show_hand">
+<span class="sig-name descname"><span class="pre">show_hand</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno.html#Player.show_hand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uno.Player.show_hand" title="Link to this definition"></a></dt>
 <dd><p>Displays the cards in the player’s hand.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -234,13 +343,13 @@
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uno.</span></span><span class="sig-name descname"><span class="pre">UIDObj</span></span><a class="reference internal" href="_modules/uno.html#UIDObj"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dt class="sig sig-object py" id="uno.UIDObj">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uno.</span></span><span class="sig-name descname"><span class="pre">UIDObj</span></span><a class="reference internal" href="_modules/uno.html#UIDObj"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uno.UIDObj" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class used to generate and store a unique 8-character alphanumeric UID.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">uid</span></span></dt>
+<dt class="sig sig-object py" id="uno.UIDObj.uid">
+<span class="sig-name descname"><span class="pre">uid</span></span><a class="headerlink" href="#uno.UIDObj.uid" title="Link to this definition"></a></dt>
 <dd><p>Read-only property that returns the unique 8-character alphanumeric UID. :noindex:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -250,8 +359,8 @@
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uid</span></span></dt>
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uid</span></span><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
 <dd><p>Read-only property that returns the unique 8-character alphanumeric UID.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -266,11 +375,32 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py">
-<span class="sig-prename descclassname"><span class="pre">uno.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dt class="sig sig-object py" id="uno.main">
+<span class="sig-prename descclassname"><span class="pre">uno.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">debug_active</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uno.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uno.main" title="Link to this definition"></a></dt>
 <dd><p>Entry point for the SquirrelUno project. :noindex:</p>
+<dl class="simple">
+<dt>Parameters</dt><dd><dl class="simple">
+<dt>debug_active<span class="classifier">bool</span></dt><dd><p>hide or show debug logs in console :noindex:</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
+</section>
+<section id="using-this-documentation">
+<h1>Using This Documentation<a class="headerlink" href="#using-this-documentation" title="Link to this heading"></a></h1>
+<p>Each module’s documentation includes a detailed list of members (functions, classes, methods) and their descriptions. Inheritance diagrams are provided where applicable to illustrate the class hierarchy and relationships.</p>
+<p>Key sections:
+- <strong>Members</strong>: Lists all public members of the module.
+- <strong>Undocumented Members</strong>: Highlights any members without documentation, encouraging contributions to improve coverage.
+- <strong>Inheritance</strong>: Shows the inheritance structure of classes, helping you understand the architecture of the project.</p>
+<p>For further assistance or to contribute to this documentation, please refer to the [Contribution Guidelines](contributing.html).</p>
+</section>
+<section id="feedback">
+<h1>Feedback<a class="headerlink" href="#feedback" title="Link to this heading"></a></h1>
+<p>We value your feedback to improve this documentation. If you find any discrepancies or have suggestions for enhancement, please reach out via our [issue tracker](<a class="reference external" href="https://github.com/MarvGMBH/SquirrelUno/issues">https://github.com/MarvGMBH/SquirrelUno/issues</a>).</p>
+<p>Thank you for using SquirrelUno!</p>
 </section>
 
 

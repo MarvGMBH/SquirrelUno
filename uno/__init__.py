@@ -212,9 +212,14 @@ class GameMaster:
         import random
         random.shuffle(self.deck)
 
-def main():
+def main(debug_active:bool):
     """
     Entry point for the SquirrelUno project. :noindex:
+    
+    Parameters
+        ----------
+        debug_active : bool
+            hide or show debug logs in console :noindex:
     """
     print("Welcome to the SquirrelUno project!")
 
