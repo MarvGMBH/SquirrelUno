@@ -1,6 +1,8 @@
 from __future__ import annotations
 from utils import UIDObj
+from collections import OrderedDict
 from enum import Enum
+import random
 
 try:
     from game_logic import Player
@@ -31,10 +33,10 @@ class Card(UIDObj):
             return stack_obj
         raise ValueError(f"no stack found for {owner_uid}...")
     
-    def transfer_owner(self, owner_uid:str, other_uid:str):
+    def transfer_owner(self, owner_uid:str, other_uid:str, *, forced=False):
         if self.owner is None:
             raise ValueError(f"card canot be transfered to {other_uid} cause no prev owner")
-        if self.owner != owner_uid:
+        if self.owner != owner_uid and not forced:
             raise ValueError(f"card {self.uid} does not belong to {owner_uid}...")
         
         owner_stack = self.get_stack_based_on_owner(owner_uid)
@@ -70,8 +72,15 @@ class JokerCard(Card):
         self.__color = color
         self.__title = title
     
-    def make_action(self):
-        print(f"action from joker card {self.uid}")
+    def make_action(self, next_player):
+        if self.title.startswith("draw"):
+            _, count = self.title.split(" ")
+            global_cards = UIDObj.stacks["draw"]
+                
+            for i in range(int(count)+1):
+                random_card_uid = random.choice(list(global_cards.cards))
+                random_card_obj = UIDObj.get(random_card_uid)
+                random_card_obj.transfer_owner("game", next_player.uid, forced=True)           
     
     @property
     def color(self):
@@ -90,22 +99,30 @@ class JokerCard(Card):
 class Stack(UIDObj):
     def __init__(self, owner:str, cards:dict[str:Card]):
         super().__init__()
-        self.cards = cards
+        sorted_cards = sorted(cards.items(), key=lambda item: item[1].color.value)
+        self.cards = OrderedDict(sorted_cards)
         self.owner = owner
         
         self.last_added_card = None
     
+    def get_card_per_index(self, index:int):
+        for i, card_obj in enumerate(self.cards.values()):
+            if i != index:
+                continue
+            return card_obj
+    
     def add_card(self, card_obj:Card):
         self.cards[card_obj.uid] = card_obj
         self.last_added_card = card_obj
+        sorted_cards = sorted(self.cards.items(), key=lambda item: item[1].color.value)
+        self.cards = OrderedDict(sorted_cards)
     
     def remove_card(self, card_obj:Card):
         self.cards.pop(card_obj.uid, None)
     
     def __str__(self):
         output = ""
-        sorted_cards = sorted(self.cards.items(), key=lambda item: item[1].color.value)
-        for uid, card in sorted_cards:
-            output += f"{card}\n"
+        for index, (uid, card) in enumerate(self.cards.items()):
+            output += f"{index+1}: {card}\n"
         return output
     

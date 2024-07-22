@@ -3,6 +3,7 @@ import string
 
 class UIDObj:
     objects = {}
+    stacks = {}
 
     def __init__(self):
         self.__uid = self._generate_8_char_alphanumeric_uid()

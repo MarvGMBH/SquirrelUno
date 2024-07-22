@@ -36,8 +36,11 @@ class GameMaster(UIDObj):
         self.player_turn = Player.get_uid(players[0])
         
         self.global_stack = Stack("global", self.create_cards())
+        UIDObj.stacks["global"] = self.global_stack
         self.draw_stack = Stack("draw", {})
+        UIDObj.stacks["draw"] = self.draw_stack
         self.game_stack = Stack("game", {})
+        UIDObj.stacks["game"] = self.game_stack
         
         print("lay down first card...")
         self.lay_down_first_card()
@@ -48,6 +51,8 @@ class GameMaster(UIDObj):
         
         self.game_direction = -1
         self.game_active = True
+        self.skip_unlooked = False
+        self.last_user_action = None
         
     def lay_down_first_card(self):
         while True:
@@ -124,9 +129,9 @@ class GameMaster(UIDObj):
     def show_censor_part(self, player:Player):
         os.system("clear")
         print("#########################################")
-        print("#########################################")
+        print("\n"*6)
         print(f" next player please: {player.name}")
-        print("#########################################")
+        print("\n"*6)
         print("#########################################")
         input("press enter to continue")
         os.system("clear")
@@ -145,22 +150,68 @@ class GameMaster(UIDObj):
               f"other players decks:\n{others_hands}",
               f"\ron your hands:\n{player.hands}",
               sep="\n")
-        return input("make your move: ")
+        return input(f"choose your action\nenter a number from {1} to {len(player.hands.cards)} for the representing card in your deck\nor enter draw to take a card\nwhat should it be {player.name}?\naction: ")
+    
+    def make_player_action(self, current_player, next_player, action:str, skip_unlooked):
+        print("action", action)
+        if action == "skip" and skip_unlooked:
+            self.last_user_action = "skip"
+            return
+        elif action == "skip" and not skip_unlooked:
+            self.last_user_action = "no-skip"
+            return
+        
+        if action == "draw":
+            draw_stack_len = len(self.draw_stack.cards)
+            card = self.draw_stack.get_card_per_index(draw_stack_len-1)
+            card.transfer_owner("draw", current_player.uid)
+            self.last_user_action = "draw"
+            return
+        
+        if action.isdecimal():
+            try:
+                index = int(action)
+            except ValueError:
+                self.last_user_action = "invalid-no-int"
+                return
+            
+            game_card = self.game_stack.last_added_card            
+            player_card = current_player.hands.get_card_per_index(index-1)
+            
+            if ((player_card.color == CardColor.no_color or
+                  game_card.color == player_card.color) and
+                  player_card.card_type == CardType.joker):
+                player_card.make_action(next_player)
+                
+            elif (game_card.card_type == CardType.joker and
+                  (game_card.color == CardColor.no_color or
+                  game_card.color == player_card.color)):
+                pass
+            
+            elif (game_card.color != player_card.color and
+                  game_card.number != player_card.number):
+                self.last_user_action = "wrong-card"
+                return
+                
+            print(player_card, "found")
+            player_card.transfer_owner(current_player.uid, "game")
+            self.last_user_action = "played-card"
+            return
+        
+        self.last_user_action = None
     
     def game_cycle(self):
         current_player, next_player = self.get_players_for_cycle()
-        self.show_current_player_deck(current_player)
+        player_action = self.show_current_player_deck(current_player)
+        self.make_player_action(current_player, next_player, player_action, self.skip_unlooked)  
+        print("last action", self.last_user_action)  
+        input("complet cycle")  
         self.player_turn = next_player.uid
         self.show_censor_part(next_player)
     
     def start(self):
-        print(self.global_stack)
-        print("draw")
-        print(self.draw_stack)
-        for player in self.players.values():
-            print(player.name)
-            print(player.hands)
-        
-        input()
         while self.game_active:
+            self.skip_unlooked = False
+            self.last_user_action = None
             self.game_cycle()
+            
