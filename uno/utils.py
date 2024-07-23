@@ -1,6 +1,7 @@
 import secrets
 import string
 
+
 class UIDObj:
     objects = {}
     stacks = {}
@@ -10,20 +11,24 @@ class UIDObj:
         self.objects[self.uid] = self
 
     @classmethod
-    def iterate(cls, iterate_type:object):
+    def iterate(cls, iterate_type: object):
         for uid, obj in cls.objects.items():
-            if type(obj) is not iterate_type:
-                continue
-            
-            yield uid, obj
+            if isinstance(obj, iterate_type):
+                yield uid, obj
 
     @classmethod
-    def get(cls, uid:str):
-        return cls.objects[uid]
-    
+    def get(cls, uid: str):
+        if uid in cls.objects:
+            return cls.objects[uid]
+        else:
+            raise ValueError(f"No object found with UID: {uid}")
+
     @classmethod
-    def remove(cls, uid:str):
-        del cls.objects[uid]
+    def remove(cls, uid: str):
+        if uid in cls.objects:
+            del cls.objects[uid]
+        else:
+            raise ValueError(f"No object found with UID: {uid}")
 
     @staticmethod
     def _generate_8_char_alphanumeric_uid():

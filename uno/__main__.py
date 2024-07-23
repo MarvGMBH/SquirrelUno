@@ -1,6 +1,7 @@
 import argparse
 from __init__ import main
 
+
 class CLI:
     def __init__(self):
         self.parser = argparse.ArgumentParser(description='Uno command line interface')
@@ -9,9 +10,9 @@ class CLI:
         self._setup_version_info()
 
     def _setup_version_info(self):
-        parser_a = self.subparsers.add_parser('info', help='shows version and other information')
-        parser_a.add_argument('--hide_info', action='store_true', help='shows only version text')
-        parser_a.set_defaults(func=self.version_info)
+        parser_info = self.subparsers.add_parser('info', help='Shows version and other information')
+        parser_info.add_argument('--hide_info', action='store_true', help='Shows only version text')
+        parser_info.set_defaults(func=self.version_info)
 
     def parse_args(self):
         return self.parser.parse_args()
@@ -19,7 +20,10 @@ class CLI:
     def run(self):
         args = self.parse_args()
         if args.command:
-            args.func(args)
+            if hasattr(args, 'func'):
+                args.func(args)
+            else:
+                self.parser.print_help()
         else:
             self.handle_no_command(args)
 
@@ -32,6 +36,7 @@ class CLI:
         print('v00.00.01')
         if not args.hide_info:
             print('A fun little Uno implementation by Dominik Krenn')
+
 
 if __name__ == '__main__':
     cli = CLI()
