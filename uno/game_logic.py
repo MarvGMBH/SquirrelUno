@@ -1,11 +1,11 @@
 from __future__ import annotations
 from card_logic import CardType, CardColor, Card, NumberCard, JokerCard, Stack
-from utils import UIDObj, ComponentManager
+from utils import UIDObject, ComponentManager
 import random
 import os
 
 
-class Player(UIDObj):
+class Player(UIDObject):
     def __init__(self, name:str, game_position:int):
         super().__init__()
         self.name = name
@@ -23,7 +23,7 @@ class Player(UIDObj):
         return len(self.hands.cards)
 
 
-class GameMaster(UIDObj):
+class GameMaster(UIDObject):
     def __init__(self, players: list):
         super().__init__()
         self.players = self._init_players(players)

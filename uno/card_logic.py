@@ -1,5 +1,5 @@
 from __future__ import annotations
-from utils import UIDObj, ComponentManager
+from utils import UIDObject, ComponentManager
 from collections import OrderedDict
 from enum import Enum
 import random
@@ -20,7 +20,7 @@ class CardColor(Enum):
     BLUE = "blue"
     YELLOW = "yellow"
 
-class Card(UIDObj):
+class Card(UIDObject):
     def __init__(self, card_type:CardType):
         super().__init__()
         self.card_type = card_type
@@ -92,7 +92,7 @@ class JokerCard(Card):
     def __str__(self):
         return f"{self.color.value} {self.title}" if self.color != CardColor.NO_COLOR else f"{self.title}"
 
-class Stack(UIDObj):
+class Stack(UIDObject):
     def __init__(self, owner:str, cards:dict[str, Card]):
         super().__init__()
         self.cards = OrderedDict(sorted(cards.items(), key=lambda item: item[1].color.value))
