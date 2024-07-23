@@ -235,8 +235,10 @@ class GameMaster(UIDObject):
             self.last_user_action = "wrong-card"
             self.player_actions.append(f"{self.color_codes['red']}your card {player_card}{self.color_codes['red']} not matching {game_card}{self.color_codes['reset']}")
 
-    def game_cycle(self):
+    def game_cycle(self, first_round):
         current_player, next_player = self.get_players_for_cycle()
+        if first_round:
+            self.show_censor_part(current_player)
         player_action = self.show_current_player_deck(current_player)
         self.make_player_action(current_player, next_player, player_action)
         #input(f"{self.last_user_action=}")
@@ -249,6 +251,8 @@ class GameMaster(UIDObject):
             self.show_censor_part(next_player)
 
     def start(self):
+        first_round = True
         while self.game_active:
             self.last_user_action = None
-            self.game_cycle()
+            self.game_cycle(first_round)
+            first_round = False
