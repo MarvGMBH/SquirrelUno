@@ -50,7 +50,7 @@ class Card(UIDObject):
 
 class NumberCard(Card):
     def __init__(self, number:int, color:CardColor):
-        super().__init__(CardType.number)
+        super().__init__(CardType.NUMBER)
         self.__number = number
         self.__color = color
 
@@ -67,7 +67,7 @@ class NumberCard(Card):
 
 class JokerCard(Card):
     def __init__(self, color:CardColor, title:str):
-        super().__init__(CardType.joker)
+        super().__init__(CardType.JOKER)
         self.__color = color
         self.__title = title
 
