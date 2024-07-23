@@ -1,12 +1,12 @@
 from __future__ import annotations
 from card_logic import CardType, CardColor, Card, NumberCard, JokerCard, Stack
-from utils import UIDObj
+from utils import UIDObj, ComponentManager
 import random
 import os
 
 
 class Player(UIDObj):
-    def __init__(self, name: str, game_position: int):
+    def __init__(self, name:str, game_position:int):
         super().__init__()
         self.name = name
         self.game_position = game_position
@@ -14,7 +14,7 @@ class Player(UIDObj):
 
     @classmethod
     def get_uid(cls, name: str):
-        for uid, player_obj in UIDObj.iterate(Player):
+        for uid, player_obj in ComponentManager.iterate_uid_objects(Player):
             if player_obj.name == name:
                 return uid
         raise ValueError(f"No match for Player: {name}")
@@ -29,15 +29,16 @@ class GameMaster(UIDObj):
         self.players = self._init_players(players)
         self.player_turn = Player.get_uid(players[0])
         self.global_stack = Stack("global", self._create_cards())
-        UIDObj.stacks["global"] = self.global_stack
+        ComponentManager.register_uid_object("global", self.global_stack)
         self.draw_stack = Stack("draw", {})
-        UIDObj.stacks["draw"] = self.draw_stack
+        ComponentManager.register_uid_object("draw", self.draw_stack)
         self.game_stack = Stack("game", {})
-        UIDObj.stacks["game"] = self.game_stack
+        ComponentManager.register_uid_object("game", self.game_stack)
+
 
         self._initialize_game()
 
-        self.game_direction = -1
+        self.game_direction = 1
         self.game_active = True
         self.skip_unlooked = False
         self.last_user_action = None
@@ -54,9 +55,9 @@ class GameMaster(UIDObj):
     def _lay_down_first_card(self):
         while True:
             random_card_uid = random.choice(list(self.global_stack.cards))
-            random_card_obj = UIDObj.get(random_card_uid)
+            random_card_obj = ComponentManager.get_uid_object(random_card_uid)
 
-            if random_card_obj.card_type != CardType.joker:
+            if random_card_obj.card_type != CardType.JOKER:
                 random_card_obj.transfer_owner("global", "game")
                 break
 
@@ -72,13 +73,13 @@ class GameMaster(UIDObj):
 
     def _transfer_random_card(self, from_stack: str, to_stack: str):
         random_card_uid = random.choice(list(self.global_stack.cards))
-        random_card_obj = UIDObj.get(random_card_uid)
+        random_card_obj = ComponentManager.get_uid_object(random_card_uid)
         random_card_obj.transfer_owner(from_stack, to_stack)
 
     def _create_cards(self):
         cards = {}
         for color in CardColor:
-            if color == CardColor.no_color:
+            if color == CardColor.NO_COLOR:
                 continue
 
             for number in range(1, 10):
@@ -99,7 +100,7 @@ class GameMaster(UIDObj):
         draw_4.owner = "global"
         cards[draw_4.uid] = draw_4
 
-        draw_4_no_color = JokerCard(CardColor.no_color, "draw 4")
+        draw_4_no_color = JokerCard(CardColor.NO_COLOR, "draw 4")
         draw_4_no_color.owner = "global"
         cards[draw_4_no_color.uid] = draw_4_no_color
 
@@ -113,7 +114,7 @@ class GameMaster(UIDObj):
     def get_players_for_cycle(self):
         current_player = self.players[self.player_turn]
         next_player_pos = self._get_next_player_position(current_player.game_position)
-        next_player = next(player_obj for uid, player_obj in UIDObj.iterate(Player) if player_obj.game_position == next_player_pos)
+        next_player = next(player_obj for uid, player_obj in ComponentManager.iterate_uid_objects(Player) if player_obj.game_position == next_player_pos)
         return current_player, next_player
 
     def _get_next_player_position(self, current_position):
@@ -148,7 +149,7 @@ class GameMaster(UIDObj):
 
     def _get_others_hands(self, player: Player):
         others_hands = ""
-        for _, other in UIDObj.iterate(Player):
+        for _, other in ComponentManager.iterate_uid_objects(Player):
             if other.uid != player.uid:
                 others_hands += f"{other.name} {other.card_count()}\n"
         return others_hands
