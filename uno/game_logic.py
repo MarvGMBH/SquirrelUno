@@ -10,7 +10,7 @@ class Player(UIDObject):
         super().__init__()
         self.name = name
         self.game_position = game_position
-        self.hands = Stack(self.uid, {})
+        self.hands = Stack(self.uid, {}, sorted_stack=True)
 
     @classmethod
     def get_uid(cls, name: str):
@@ -26,15 +26,16 @@ class Player(UIDObject):
 class GameMaster(UIDObject):
     def __init__(self, players: list):
         super().__init__()
+        ComponentManager.register_component("game_master", self)
         self.players = self._init_players(players)
         self.player_turn = Player.get_uid(players[0])
         self.global_stack = Stack("global", self._create_cards())
+        self.global_stack.shuffle_deck()
         ComponentManager.register_component("global", self.global_stack)
         self.draw_stack = Stack("draw", {})
         ComponentManager.register_component("draw", self.draw_stack)
         self.game_stack = Stack("game", {})
         ComponentManager.register_component("game", self.game_stack)
-
 
         self._initialize_game()
 
@@ -42,6 +43,17 @@ class GameMaster(UIDObject):
         self.game_active = True
         self.last_user_action = None
         self.drawn_this_turn = False
+        self.layed_this_turn = False
+        self.player_actions = []
+        
+        self.color_codes = {
+            'red': '\033[31m',
+            'blue': '\033[34m',
+            'yellow': '\033[33m',
+            'green': '\033[32m',
+            'no_color': '\033[38;5;214m',
+            'reset': '\033[0m'
+        }
 
     def _initialize_game(self):
         print("Laying down first card...")
@@ -98,6 +110,10 @@ class GameMaster(UIDObject):
         draw_4 = JokerCard(color, "draw 4")
         draw_4.owner = "global"
         cards[draw_4.uid] = draw_4
+        
+        card_reverse = JokerCard(color, "reverse")
+        card_reverse.owner = "global"
+        cards[card_reverse.uid] = card_reverse
 
         draw_4_no_color = JokerCard(CardColor.NO_COLOR, "draw 4")
         draw_4_no_color.owner = "global"
@@ -140,7 +156,11 @@ class GameMaster(UIDObject):
               f"Other players' decks:\n{others_hands}",
               f"On your hands:\n{player.hands}",
               sep="\n")
-
+        print("")
+        for line in self.player_actions:
+            print(line)
+        print("")
+        
         return input(f"Choose your action:\n"
                      f"Enter a number from 1 to {len(player.hands.cards)} for the corresponding card in your deck,\n"
                      f"'draw' to take a card, or 'skip' to skip your turn (after drawing).\n"
@@ -154,30 +174,26 @@ class GameMaster(UIDObject):
         return others_hands
 
     def make_player_action(self, current_player, next_player, action: str):
-        if action == "draw" and not self.drawn_this_turn:
+        if action == "draw" and not (self.drawn_this_turn or self.layed_this_turn):
             self._draw_card(current_player)
             return
-        if action == "skip" and self.drawn_this_turn:
-            self.last_user_action = "skip"
+        if action == "next" and (self.drawn_this_turn or self.layed_this_turn):
+            self.last_user_action = "next"
             return
-        if action.isdecimal():
+        if action.isdecimal() and not self.layed_this_turn:
             self._play_card_action(current_player, next_player, action)
             return
 
-        self.last_user_action = "invalid"
-        self._handle_invalid_action(current_player)
-
-    def _handle_invalid_action(self, current_player):
-        print(f"Invalid action: {self.last_user_action}")
-        input("Press enter to continue.")
+        self.last_user_action = f"invalid action {action}"
         self.show_current_player_deck(current_player)
-
+        
     def _draw_card(self, current_player):
         draw_stack_len = len(self.draw_stack.cards)
         card = self.draw_stack.get_card_per_index(draw_stack_len - 1)
-        card.transfer_owner("draw", current_player.uid)
+        card.transfer_owner("draw", current_player.uid, new_card=True)
         self.last_user_action = "draw"
         self.drawn_this_turn = True
+        self.player_actions.append(f"{self.color_codes['yellow']}You got {card} {self.color_codes['yellow']}from stack{self.color_codes['reset']}")
         
     def _is_valid_card_to_play(self, game_card, player_card):
         return (
@@ -185,7 +201,7 @@ class GameMaster(UIDObject):
             and player_card.card_type == CardType.JOKER
         ) or (
             game_card.card_type == CardType.JOKER
-            and (game_card.color == CardColor.NO_COLOR or game_card.color == player_card.color)
+            and (game_card.color == CardColor.NO_COLOR or game_card.color == player_card.color or game_card.title == player_card.title)
         ) or (
             game_card.color == player_card.color or game_card.number == player_card.number
         )
@@ -195,29 +211,42 @@ class GameMaster(UIDObject):
             index = int(action)
         except ValueError:
             self.last_user_action = "invalid"
+            self.player_actions.append(f"{self.color_codes['red']}'{action}' is invalid{self.color_codes['reset']}")
             return
 
         game_card = self.game_stack.last_added_card
         player_card = current_player.hands.get_card_per_index(index - 1)
-
+        action_response = None
         if self._is_valid_card_to_play(game_card, player_card):
             if player_card.card_type == CardType.JOKER:
-                player_card.make_action(next_player)
+                action_response = player_card.make_action(next_player)
             player_card.transfer_owner(current_player.uid, "game")
             self.last_user_action = "played-card"
-            self.drawn_this_turn = False
+            if action_response == "draw-ok":
+                self.player_actions.append(f"{self.color_codes['no_color']}ohh yea... take that {self.color_codes['blue']}{next_player.name}{self.color_codes['no_color']} you just got some free cards :P{self.color_codes['reset']}")
+            elif action_response == "reverse-same-again":
+                self.player_actions.append(f"{self.color_codes['no_color']}oh yeah... you again{self.color_codes['reset']}")
+            elif action_response == "reverse-ok":
+                self.player_actions.append(f"{self.color_codes['no_color']}reversed direction :P{self.color_codes['reset']}")
+            else:
+                self.player_actions.append(f"{self.color_codes['green']}you player the card {player_card}")
+            self.layed_this_turn = True
         else:
             self.last_user_action = "wrong-card"
+            self.player_actions.append(f"{self.color_codes['red']}your card {player_card}{self.color_codes['red']} not matching {game_card}{self.color_codes['reset']}")
 
     def game_cycle(self):
         current_player, next_player = self.get_players_for_cycle()
         player_action = self.show_current_player_deck(current_player)
         self.make_player_action(current_player, next_player, player_action)
-        if self.last_user_action not in ["draw", "invalid", "wrong-card", "error: already drawn this turn", "error: must draw before skipping"]:
+        #input(f"{self.last_user_action=}")
+        if self.last_user_action == "next" and (self.drawn_this_turn or self.layed_this_turn):
+            current_player.hands.clear_new_flag()
+            self.drawn_this_turn = False
+            self.layed_this_turn = False
+            self.player_actions.clear()
             self.player_turn = next_player.uid
             self.show_censor_part(next_player)
-            self.drawn_this_turn = False
-            current_player.hands.clear_new_flag()
 
     def start(self):
         while self.game_active:
