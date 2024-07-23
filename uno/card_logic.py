@@ -25,6 +25,7 @@ class Card(UIDObject):
         super().__init__()
         self.card_type = card_type
         self.owner = None
+        self.new_card = False
 
     def get_stack_based_on_owner(self, owner_uid:str):
         for uid, stack_obj in ComponentManager.iterate_uid_objects(Stack):
@@ -46,7 +47,10 @@ class Card(UIDObject):
         self.owner = other_uid
 
     def __str__(self):
-        return f"{self.card_type} {self.owner}"
+        new_tag = ""
+        if self.new_card == True:
+            new_tag = "NEW "
+        return f"{new_tag}{self.card_type} {self.owner}"
 
 class NumberCard(Card):
     def __init__(self, number:int, color:CardColor):
@@ -63,7 +67,23 @@ class NumberCard(Card):
         return self.__color
 
     def __str__(self):
-        return f"{self.color.value} {self.number}"
+        new_tag = ""
+        if self.new_card:
+            new_tag = "NEW "
+        
+        color_codes = {
+            'red': '\033[31m',
+            'blue': '\033[34m',
+            'yellow': '\033[33m',
+            'green': '\033[32m',
+            'reset': '\033[0m'
+        }
+        
+        color_start = color_codes.get(self.color.value, color_codes['reset'])
+        color_end = color_codes['reset']
+
+        return f"{new_tag}{color_start}{self.color.value}{color_end} {self.number}"
+
 
 class JokerCard(Card):
     def __init__(self, color:CardColor, title:str):
@@ -79,6 +99,7 @@ class JokerCard(Card):
             for _ in range(int(count)):
                 random_card_uid = random.choice(list(global_cards.cards))
                 random_card_obj = ComponentManager.get_uid_object(random_card_uid)
+                random_card_obj.new_card = True
                 random_card_obj.transfer_owner("draw", next_player.uid, forced=True)
 
     @property
@@ -90,7 +111,26 @@ class JokerCard(Card):
         return self.__title
 
     def __str__(self):
-        return f"{self.color.value} {self.title}" if self.color != CardColor.NO_COLOR else f"{self.title}"
+        new_tag = ""
+        if self.new_card:
+            new_tag = "NEW "
+        
+        color_codes = {
+            'red': '\033[31m',
+            'blue': '\033[34m',
+            'yellow': '\033[33m',
+            'green': '\033[32m',
+            'no_color': '\033[38;5;214m',  # Gold/Orange
+            'reset': '\033[0m'
+        }
+        
+        color_start = color_codes.get(self.color.value, color_codes['reset'])
+        color_end = color_codes['reset']
+
+        if self.color != CardColor.NO_COLOR:
+            return f"{new_tag}{color_start}{self.color.value}{color_end} {self.title}"
+        else:
+            return f"{new_tag}{color_start}{self.title}{color_end}"
 
 class Stack(UIDObject):
     def __init__(self, owner:str, cards:dict[str, Card]):
@@ -98,6 +138,10 @@ class Stack(UIDObject):
         self.cards = OrderedDict(sorted(cards.items(), key=lambda item: item[1].color.value))
         self.owner = owner
         self.last_added_card = None
+    
+    def clear_new_flag(self):
+        for uid, card_obj in self.cards.items():
+            card_obj.new_card = False
 
     def get_card_per_index(self, index:int):
         try:

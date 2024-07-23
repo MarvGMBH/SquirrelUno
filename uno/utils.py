@@ -23,7 +23,7 @@ class UIDObject:
     @classmethod
     def register(cls, uid:str, new_object:UIDObject):
         """Register new UID object"""
-        self._objects[uid] = new_object
+        cls._objects[uid] = new_object
 
     @classmethod
     def get(cls, uid:str):

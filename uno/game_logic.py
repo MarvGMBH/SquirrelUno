@@ -29,18 +29,17 @@ class GameMaster(UIDObject):
         self.players = self._init_players(players)
         self.player_turn = Player.get_uid(players[0])
         self.global_stack = Stack("global", self._create_cards())
-        ComponentManager.register_uid_object("global", self.global_stack)
+        ComponentManager.register_component("global", self.global_stack)
         self.draw_stack = Stack("draw", {})
-        ComponentManager.register_uid_object("draw", self.draw_stack)
+        ComponentManager.register_component("draw", self.draw_stack)
         self.game_stack = Stack("game", {})
-        ComponentManager.register_uid_object("game", self.game_stack)
+        ComponentManager.register_component("game", self.game_stack)
 
 
         self._initialize_game()
 
         self.game_direction = 1
         self.game_active = True
-        self.skip_unlooked = False
         self.last_user_action = None
         self.drawn_this_turn = False
 
@@ -157,15 +156,16 @@ class GameMaster(UIDObject):
     def make_player_action(self, current_player, next_player, action: str):
         if action == "draw" and not self.drawn_this_turn:
             self._draw_card(current_player)
-        elif action == "skip" and self.drawn_this_turn:
+            return
+        if action == "skip" and self.drawn_this_turn:
             self.last_user_action = "skip"
-        elif action.isdecimal():
+            return
+        if action.isdecimal():
             self._play_card_action(current_player, next_player, action)
-        else:
-            self.last_user_action = "invalid"
+            return
 
-        if self.last_user_action in ["invalid", "wrong-card"]:
-            self._handle_invalid_action(current_player)
+        self.last_user_action = "invalid"
+        self._handle_invalid_action(current_player)
 
     def _handle_invalid_action(self, current_player):
         print(f"Invalid action: {self.last_user_action}")
@@ -178,7 +178,18 @@ class GameMaster(UIDObject):
         card.transfer_owner("draw", current_player.uid)
         self.last_user_action = "draw"
         self.drawn_this_turn = True
-
+        
+    def _is_valid_card_to_play(self, game_card, player_card):
+        return (
+            (player_card.color == CardColor.NO_COLOR or game_card.color == player_card.color)
+            and player_card.card_type == CardType.JOKER
+        ) or (
+            game_card.card_type == CardType.JOKER
+            and (game_card.color == CardColor.NO_COLOR or game_card.color == player_card.color)
+        ) or (
+            game_card.color == player_card.color or game_card.number == player_card.number
+        )
+        
     def _play_card_action(self, current_player, next_player, action):
         try:
             index = int(action)
@@ -190,7 +201,8 @@ class GameMaster(UIDObject):
         player_card = current_player.hands.get_card_per_index(index - 1)
 
         if self._is_valid_card_to_play(game_card, player_card):
-            player_card.make_action(next_player)
+            if player_card.card_type == CardType.JOKER:
+                player_card.make_action(next_player)
             player_card.transfer_owner(current_player.uid, "game")
             self.last_user_action = "played-card"
             self.drawn_this_turn = False
@@ -201,13 +213,13 @@ class GameMaster(UIDObject):
         current_player, next_player = self.get_players_for_cycle()
         player_action = self.show_current_player_deck(current_player)
         self.make_player_action(current_player, next_player, player_action)
-        if self.last_user_action not in ["invalid", "wrong-card", "error: already drawn this turn", "error: must draw before skipping"]:
+        if self.last_user_action not in ["draw", "invalid", "wrong-card", "error: already drawn this turn", "error: must draw before skipping"]:
             self.player_turn = next_player.uid
             self.show_censor_part(next_player)
+            self.drawn_this_turn = False
+            current_player.hands.clear_new_flag()
 
     def start(self):
         while self.game_active:
-            self.skip_unlooked = False
             self.last_user_action = None
-            self.drawn_this_turn = False
             self.game_cycle()
