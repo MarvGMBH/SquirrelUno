@@ -41,15 +41,15 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Documentation Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../introduction.html#features">Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api.html#module-uno.__main__">Console Entry Point (__main__.py)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api.html#module-uno">Script Entry (__init__.py)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#overview">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#console-entry-point">Console Entry Point</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#script-entry">Script Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#card-logic">Card Logic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#game-logic">Game Logic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#utilities">Utilities</a></li>
 </ul>
 
         </div>
@@ -78,22 +78,18 @@
            <div itemprop="articleBody">
              
   <h1>Source code for uno.__main__</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Entry point for the uno package to run from Console</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
-<span class="kn">import</span> <span class="nn">argparse</span>
+<span></span><span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">from</span> <span class="nn">__init__</span> <span class="kn">import</span> <span class="n">main</span>
 
 <div class="viewcode-block" id="CLI">
 <a class="viewcode-back" href="../../api.html#uno.__main__.CLI">[docs]</a>
 <span class="k">class</span> <span class="nc">CLI</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Command Line Interface for the Uno package.</span>
+<span class="sd">    Command Line Interface for Uno game.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initialize the CLI with argument parsers.</span>
+<span class="sd">        Initializes the CLI with argument parsing.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Uno command line interface&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">subparsers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="s1">&#39;command&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Commands&#39;</span><span class="p">)</span>
@@ -102,19 +98,17 @@
 
     <span class="k">def</span> <span class="nf">_setup_version_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set up the subcommand for displaying version information.</span>
+<span class="sd">        Sets up the version info command.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">parser_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;info&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;shows version and other information&#39;</span><span class="p">)</span>
-        <span class="n">parser_a</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--hide_info&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;shows only version text&#39;</span><span class="p">)</span>
-        <span class="n">parser_a</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">version_info</span><span class="p">)</span>
+        <span class="n">parser_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;info&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Shows version and other information&#39;</span><span class="p">)</span>
+        <span class="n">parser_info</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--hide_info&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Shows only version text&#39;</span><span class="p">)</span>
+        <span class="n">parser_info</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">version_info</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CLI.parse_args">
 <a class="viewcode-back" href="../../api.html#uno.__main__.CLI.parse_args">[docs]</a>
     <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Parse the command line arguments.</span>
-
-<span class="sd">        :return: Parsed arguments</span>
+<span class="sd">        Parses the command-line arguments.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span></div>
 
@@ -123,11 +117,14 @@
 <a class="viewcode-back" href="../../api.html#uno.__main__.CLI.run">[docs]</a>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Execute the appropriate function based on the parsed arguments.</span>
+<span class="sd">        Runs the CLI and handles the parsed arguments.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span><span class="p">:</span>
-            <span class="n">args</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s1">&#39;func&#39;</span><span class="p">):</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">handle_no_command</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
 
@@ -136,9 +133,7 @@
 <a class="viewcode-back" href="../../api.html#uno.__main__.CLI.handle_no_command">[docs]</a>
     <span class="k">def</span> <span class="nf">handle_no_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Handle the case where no command is provided.</span>
-
-<span class="sd">        :param args: Parsed arguments</span>
+<span class="sd">        Handles the case when no command is provided.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Debug Mode active&#39;</span><span class="p">)</span>
@@ -149,9 +144,7 @@
 <a class="viewcode-back" href="../../api.html#uno.__main__.CLI.version_info">[docs]</a>
     <span class="k">def</span> <span class="nf">version_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Display version information.</span>
-
-<span class="sd">        :param args: Parsed arguments</span>
+<span class="sd">        Displays version information.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;v00.00.01&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">hide_info</span><span class="p">:</span>

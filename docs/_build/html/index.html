@@ -21,7 +21,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Introduction" href="introduction.html" /> 
+    <link rel="next" title="API Documentation" href="api.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -45,22 +45,13 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Documentation Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html#features">Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#local-installation">Local Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#github-installation">GitHub Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#verifying-the-installation">Verifying the Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#running-the-project">Running the Project</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#what-you-ll-see">What You’ll See</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#detailed-explanation-of-commands">Detailed Explanation of Commands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html#overview">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html#console-entry-point">Console Entry Point</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html#script-entry">Script Entry</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html#using-this-documentation">Using This Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html#feedback">Feedback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html#card-logic">Card Logic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html#game-logic">Game Logic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html#utilities">Utilities</a></li>
 </ul>
 
         </div>
@@ -98,56 +89,27 @@
 <section id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h1>
 <p>SquirrelUno is designed to offer a fun and engaging card game experience with unique features and enhancements over the traditional Uno game. Whether you are a developer looking to contribute or a player eager to enjoy a new version of Uno, this documentation will guide you through every step.</p>
-<img alt="A fox who is kinda like &quot;yeah whatever :P&quot;" class="align-center" src="https://th.bing.com/th/id/OIP.hUn4QQNnh5NPgh9Y_FAqUwHaHa?rs=1&amp;pid=ImgDetMain" />
+<a class="reference internal image-reference" href="https://th.bing.com/th/id/OIP.hUn4QQNnh5NPgh9Y_FAqUwHaHa?rs=1&amp;pid=ImgDetMain"><img alt="A fox who is kinda like &quot;yeah whatever :P&quot;" class="align-center" src="https://th.bing.com/th/id/OIP.hUn4QQNnh5NPgh9Y_FAqUwHaHa?rs=1&amp;pid=ImgDetMain" style="width: 300px; height: 300px;" /></a>
 </section>
 <section id="contents">
 <h1>Contents<a class="headerlink" href="#contents" title="Link to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Documentation Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html#features">Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#local-installation">Local Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#github-installation">GitHub Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html#verifying-the-installation">Verifying the Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#running-the-project">Running the Project</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#on-linux">On Linux</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#on-windows">On Windows</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#what-you-ll-see">What You’ll See</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#detailed-explanation-of-commands">Detailed Explanation of Commands</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#running-without-a-command">Running Without a Command</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#version-information">Version Information</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html#overview">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html#console-entry-point">Console Entry Point</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.html#uno.__main__.CLI"><code class="docutils literal notranslate"><span class="pre">CLI</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="api.html#script-entry">Script Entry</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.html#uno.Card"><code class="docutils literal notranslate"><span class="pre">Card</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#uno.GameMaster"><code class="docutils literal notranslate"><span class="pre">GameMaster</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#uno.JokerCard"><code class="docutils literal notranslate"><span class="pre">JokerCard</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#uno.NumCard"><code class="docutils literal notranslate"><span class="pre">NumCard</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#uno.Player"><code class="docutils literal notranslate"><span class="pre">Player</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#uno.UIDObj"><code class="docutils literal notranslate"><span class="pre">UIDObj</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#uno.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="api.html#using-this-documentation">Using This Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html#feedback">Feedback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html#console-entry-point">Console Entry Point</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html#script-entry">Script Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html#card-logic">Card Logic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html#game-logic">Game Logic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html#utilities">Utilities</a></li>
 </ul>
 </div>
 </section>
 <section id="getting-started">
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h1>
-<p>To get started with SquirrelUno, please refer to the <span class="xref std std-ref">introduction</span> section. For installation instructions, see the <span class="xref std std-ref">installation</span> guide. To learn how to use the application, visit the <span class="xref std std-ref">usage</span> section. Detailed API documentation is available in the <span class="xref std std-ref">api</span> section.</p>
-<img alt="A smiling fox who wags his tail" class="align-center" src="https://s1.stickers.cloud/packs/a72ef5ad-801d-4513-88a1-e855b485e88d/png/9db3ed16-c088-4f86-9f34-cb1c731091d6.png" />
+<p>Detailed API documentation is available in the <span class="xref std std-ref">Contents</span> section.</p>
+<a class="reference internal image-reference" href="https://s1.stickers.cloud/packs/a72ef5ad-801d-4513-88a1-e855b485e88d/png/9db3ed16-c088-4f86-9f34-cb1c731091d6.png"><img alt="A smiling fox who wags his tail" class="align-center" src="https://s1.stickers.cloud/packs/a72ef5ad-801d-4513-88a1-e855b485e88d/png/9db3ed16-c088-4f86-9f34-cb1c731091d6.png" style="width: 200px; height: 200px;" /></a>
 </section>
 <section id="indices-and-tables">
 <h1>Indices and Tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading"></a></h1>
@@ -157,22 +119,6 @@
 <li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
 </section>
-<section id="introduction">
-<h1>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h1>
-<p>The <span class="xref std std-ref">introduction</span> section provides a high-level overview of SquirrelUno, its features, and its purpose.</p>
-</section>
-<section id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
-<p>The <span class="xref std std-ref">installation</span> section guides users through the process of installing SquirrelUno, including prerequisites, detailed steps for both local and GitHub installations, and verification procedures.</p>
-</section>
-<section id="usage">
-<h1>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h1>
-<p>The <span class="xref std std-ref">usage</span> section offers comprehensive instructions on how to run and interact with SquirrelUno, detailing commands, flags, and expected outputs.</p>
-</section>
-<section id="api-documentation">
-<h1>API Documentation<a class="headerlink" href="#api-documentation" title="Link to this heading"></a></h1>
-<p>The <span class="xref std std-ref">api</span> documentation provides an in-depth look at the SquirrelUno codebase, explaining the structure, functions, classes, and methods available for developers who wish to extend or customize the game.</p>
-</section>
 <section id="additional-resources">
 <h1>Additional Resources<a class="headerlink" href="#additional-resources" title="Link to this heading"></a></h1>
 <p>For more information, refer to the indices and search features to help you quickly locate the information you need:</p>
@@ -181,14 +127,14 @@
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
 <li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
-<img alt="A funny fox who looks like in deep thought or thinking about something" class="align-center" src="https://s1.stickers.cloud/packs/a72ef5ad-801d-4513-88a1-e855b485e88d/png/12d9b378-ed96-4896-bfbf-bca123d129ce.png" />
+<a class="reference internal image-reference" href="https://s1.stickers.cloud/packs/a72ef5ad-801d-4513-88a1-e855b485e88d/png/12d9b378-ed96-4896-bfbf-bca123d129ce.png"><img alt="A funny fox who looks like in deep thought or thinking about something" class="align-center" src="https://s1.stickers.cloud/packs/a72ef5ad-801d-4513-88a1-e855b485e88d/png/12d9b378-ed96-4896-bfbf-bca123d129ce.png" style="width: 200px; height: 200px;" /></a>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="introduction.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="api.html" class="btn btn-neutral float-right" title="API Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

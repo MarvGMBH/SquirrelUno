@@ -1,7 +1,6 @@
 API Documentation
 =================
 
-Welcome to the API documentation for the SquirrelUno project. This section provides a comprehensive guide to the project's codebase, detailing each class and method to help you understand and use them effectively. Whether you're contributing to the project or looking to extend its functionality, this documentation is designed to support your development needs.
 
 Overview
 ========
@@ -17,6 +16,7 @@ The console entry point, defined in `__main__.py`, handles the command-line inte
    :members:
    :undoc-members:
    :show-inheritance:
+   :noindex:
 
 Script Entry
 ============
@@ -27,22 +27,37 @@ The script entry point, defined in `__init__.py`, initializes the SquirrelUno pa
    :members:
    :undoc-members:
    :show-inheritance:
+   :noindex:
 
-Using This Documentation
-========================
+Card Logic
+==========
 
-Each module's documentation includes a detailed list of members (functions, classes, methods) and their descriptions. Inheritance diagrams are provided where applicable to illustrate the class hierarchy and relationships.
+The `card_logic.py` module defines the different types of cards and their behaviors in the SquirrelUno game. This includes number cards, joker cards, and special action cards like draw and reverse cards.
 
-Key sections:
-- **Members**: Lists all public members of the module.
-- **Undocumented Members**: Highlights any members without documentation, encouraging contributions to improve coverage.
-- **Inheritance**: Shows the inheritance structure of classes, helping you understand the architecture of the project.
+.. automodule:: uno.card_logic
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :noindex:
 
-For further assistance or to contribute to this documentation, please refer to the [Contribution Guidelines](contributing.html).
+Game Logic
+==========
 
-Feedback
-========
+The `game_logic.py` module manages the core game mechanics, including player actions, game flow, and turn management. It orchestrates the interactions between players and the deck of cards to simulate a game of Uno.
 
-We value your feedback to improve this documentation. If you find any discrepancies or have suggestions for enhancement, please reach out via our [issue tracker](https://github.com/MarvGMBH/SquirrelUno/issues).
+.. automodule:: uno.game_logic
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :noindex:
 
-Thank you for using SquirrelUno!
+Utilities
+=========
+
+The `utils.py` module provides utility functions and classes that support the main game logic, such as color codes for terminal output and unique identifier management.
+
+.. automodule:: uno.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :noindex:

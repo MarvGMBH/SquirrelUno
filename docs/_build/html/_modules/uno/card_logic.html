@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>uno.card_logic &mdash; uno 00.00.01 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=d7bb8d4d"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            uno
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#overview">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#console-entry-point">Console Entry Point</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#script-entry">Script Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#card-logic">Card Logic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#game-logic">Game Logic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#utilities">Utilities</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">uno</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../uno.html">uno</a></li>
+      <li class="breadcrumb-item active">uno.card_logic</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for uno.card_logic</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">UIDObject</span><span class="p">,</span> <span class="n">ComponentManager</span><span class="p">,</span> <span class="n">Color</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">game_logic</span> <span class="kn">import</span> <span class="n">Player</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+<div class="viewcode-block" id="CardType">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.CardType">[docs]</a>
+<span class="k">class</span> <span class="nc">CardType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enum for card types.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">NUMBER</span> <span class="o">=</span> <span class="s2">&quot;number&quot;</span>
+    <span class="n">JOKER</span> <span class="o">=</span> <span class="s2">&quot;joker&quot;</span></div>
+
+
+<div class="viewcode-block" id="CardColor">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.CardColor">[docs]</a>
+<span class="k">class</span> <span class="nc">CardColor</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enum for card colors.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">NO_COLOR</span> <span class="o">=</span> <span class="s2">&quot;no_color&quot;</span>
+    <span class="n">RED</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span>
+    <span class="n">GREEN</span> <span class="o">=</span> <span class="s2">&quot;green&quot;</span>
+    <span class="n">BLUE</span> <span class="o">=</span> <span class="s2">&quot;blue&quot;</span>
+    <span class="n">YELLOW</span> <span class="o">=</span> <span class="s2">&quot;yellow&quot;</span></div>
+
+
+<div class="viewcode-block" id="Card">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.Card">[docs]</a>
+<span class="k">class</span> <span class="nc">Card</span><span class="p">(</span><span class="n">UIDObject</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for all cards.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card_type</span><span class="p">:</span> <span class="n">CardType</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the card with a type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">card_type</span> <span class="o">=</span> <span class="n">card_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">owner</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_new_card</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="Card.get_stack_based_on_owner">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.Card.get_stack_based_on_owner">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_stack_based_on_owner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner_uid</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the stack based on the owner UID.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            owner_uid (str): The UID of the owner.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Stack: The stack owned by the owner UID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">uid</span><span class="p">,</span> <span class="n">stack_obj</span> <span class="ow">in</span> <span class="n">ComponentManager</span><span class="o">.</span><span class="n">iterate_uid_objects</span><span class="p">(</span><span class="n">Stack</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">stack_obj</span><span class="o">.</span><span class="n">owner</span> <span class="o">==</span> <span class="n">owner_uid</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">stack_obj</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No stack found for owner UID: </span><span class="si">{</span><span class="n">owner_uid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Card.transfer_owner">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.Card.transfer_owner">[docs]</a>
+    <span class="k">def</span> <span class="nf">transfer_owner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner_uid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">other_uid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">forced</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">new_card</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transfers the card to a new owner.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            owner_uid (str): The UID of the current owner.</span>
+<span class="sd">            other_uid (str): The UID of the new owner.</span>
+<span class="sd">            forced (bool, optional): If True, force the transfer. Defaults to False.</span>
+<span class="sd">            new_card (bool, optional): If True, mark as new card. Defaults to False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Card cannot be transferred to </span><span class="si">{</span><span class="n">other_uid</span><span class="si">}</span><span class="s2"> because it has no previous owner&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">owner</span> <span class="o">!=</span> <span class="n">owner_uid</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">forced</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Card </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="si">}</span><span class="s2"> does not belong to </span><span class="si">{</span><span class="n">owner_uid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">owner_stack</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_stack_based_on_owner</span><span class="p">(</span><span class="n">owner_uid</span><span class="p">)</span>
+        <span class="n">other_stack</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_stack_based_on_owner</span><span class="p">(</span><span class="n">other_uid</span><span class="p">)</span>
+
+        <span class="n">owner_stack</span><span class="o">.</span><span class="n">remove_card</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">other_stack</span><span class="o">.</span><span class="n">add_card</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_card</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">owner</span> <span class="o">=</span> <span class="n">other_uid</span></div>
+
+    
+<div class="viewcode-block" id="Card.set_new_card">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.Card.set_new_card">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_new_card</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Marks the card as new.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_new_card</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+    
+<div class="viewcode-block" id="Card.clear_new_flag">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.Card.clear_new_flag">[docs]</a>
+    <span class="k">def</span> <span class="nf">clear_new_flag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clears the new card flag.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_new_card</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        String representation of the card.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_tag</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_card</span><span class="p">:</span>
+            <span class="n">new_tag</span> <span class="o">=</span> <span class="s2">&quot;NEW &quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">new_tag</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">card_type</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+<div class="viewcode-block" id="NumberCard">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.NumberCard">[docs]</a>
+<span class="k">class</span> <span class="nc">NumberCard</span><span class="p">(</span><span class="n">Card</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a numbered card.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="n">CardColor</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes a numbered card with a number and color.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">CardType</span><span class="o">.</span><span class="n">NUMBER</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__number</span> <span class="o">=</span> <span class="n">number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__color</span> <span class="o">=</span> <span class="n">color</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the number of the card.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__number</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the color of the card.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__color</span>
+
+<div class="viewcode-block" id="NumberCard.render">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.NumberCard.render">[docs]</a>
+    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Renders the card with color.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">color_codes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;red&#39;</span><span class="p">:</span> <span class="n">Color</span><span class="o">.</span><span class="n">RED</span><span class="p">,</span>
+            <span class="s1">&#39;blue&#39;</span><span class="p">:</span> <span class="n">Color</span><span class="o">.</span><span class="n">BLUE</span><span class="p">,</span>
+            <span class="s1">&#39;yellow&#39;</span><span class="p">:</span> <span class="n">Color</span><span class="o">.</span><span class="n">YELLOW</span><span class="p">,</span>
+            <span class="s1">&#39;green&#39;</span><span class="p">:</span> <span class="n">Color</span><span class="o">.</span><span class="n">GREEN</span><span class="p">,</span>
+            <span class="s1">&#39;reset&#39;</span><span class="p">:</span> <span class="n">Color</span><span class="o">.</span><span class="n">RESET</span>
+        <span class="p">}</span>
+        
+        <span class="n">color_start</span> <span class="o">=</span> <span class="n">color_codes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">color_codes</span><span class="p">[</span><span class="s1">&#39;reset&#39;</span><span class="p">])</span>
+        <span class="n">color_end</span> <span class="o">=</span> <span class="n">color_codes</span><span class="p">[</span><span class="s1">&#39;reset&#39;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">color_start</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">number</span><span class="si">}{</span><span class="n">color_end</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        String representation of the numbered card.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_tag</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_card</span><span class="p">:</span>
+            <span class="n">new_tag</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_GREEN</span><span class="si">}</span><span class="s2">NEW </span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">new_tag</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+<div class="viewcode-block" id="JokerCard">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.JokerCard">[docs]</a>
+<span class="k">class</span> <span class="nc">JokerCard</span><span class="p">(</span><span class="n">Card</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a joker card.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="n">CardColor</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes a joker card with a color and title.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">CardType</span><span class="o">.</span><span class="n">JOKER</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__color</span> <span class="o">=</span> <span class="n">color</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__title</span> <span class="o">=</span> <span class="n">title</span>
+
+<div class="viewcode-block" id="JokerCard.make_action">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.JokerCard.make_action">[docs]</a>
+    <span class="k">def</span> <span class="nf">make_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">last_card</span><span class="p">,</span> <span class="n">current_player</span><span class="p">,</span> <span class="n">next_player</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Executes the action of the joker card.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            last_card (Card): The last played card.</span>
+<span class="sd">            current_player (Player): The current player.</span>
+<span class="sd">            next_player (Player): The next player.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Description of the action.</span>
+<span class="sd">            None: Placeholder for additional action (if any).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Action </span><span class="si">{</span><span class="n">last_card</span><span class="o">.</span><span class="n">render</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">current_player</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="n">next_player</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="kc">None</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the color of the joker card.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__color</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the title of the joker card.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__title</span>
+    
+<div class="viewcode-block" id="JokerCard.render">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.JokerCard.render">[docs]</a>
+    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Renders the joker card with color.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">color_codes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;red&#39;</span><span class="p">:</span> <span class="n">Color</span><span class="o">.</span><span class="n">RED</span><span class="p">,</span>
+            <span class="s1">&#39;blue&#39;</span><span class="p">:</span> <span class="n">Color</span><span class="o">.</span><span class="n">BLUE</span><span class="p">,</span>
+            <span class="s1">&#39;yellow&#39;</span><span class="p">:</span> <span class="n">Color</span><span class="o">.</span><span class="n">YELLOW</span><span class="p">,</span>
+            <span class="s1">&#39;green&#39;</span><span class="p">:</span> <span class="n">Color</span><span class="o">.</span><span class="n">GREEN</span><span class="p">,</span>
+            <span class="s1">&#39;no_color&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[38;5;214m&#39;</span><span class="p">,</span>  <span class="c1"># Gold/Orange</span>
+            <span class="s1">&#39;reset&#39;</span><span class="p">:</span> <span class="n">Color</span><span class="o">.</span><span class="n">RESET</span>
+        <span class="p">}</span>
+        
+        <span class="n">color_start</span> <span class="o">=</span> <span class="n">color_codes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">color_codes</span><span class="p">[</span><span class="s1">&#39;reset&#39;</span><span class="p">])</span>
+        <span class="n">color_end</span> <span class="o">=</span> <span class="n">color_codes</span><span class="p">[</span><span class="s1">&#39;reset&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">!=</span> <span class="n">CardColor</span><span class="o">.</span><span class="n">NO_COLOR</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">color_start</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="si">}{</span><span class="n">color_end</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">color_start</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="si">}{</span><span class="n">color_end</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        String representation of the joker card.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_tag</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_card</span><span class="p">:</span>
+            <span class="n">new_tag</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_MAGENTA</span><span class="si">}</span><span class="s2">NEW </span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span>
+        
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">new_tag</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+<div class="viewcode-block" id="DrawCard">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.DrawCard">[docs]</a>
+<span class="k">class</span> <span class="nc">DrawCard</span><span class="p">(</span><span class="n">JokerCard</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a draw card (special type of joker card).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="n">CardColor</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes a draw card with a color and title.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bonus</span> <span class="o">=</span> <span class="mi">0</span>
+    
+<div class="viewcode-block" id="DrawCard.make_action">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.DrawCard.make_action">[docs]</a>
+    <span class="k">def</span> <span class="nf">make_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">last_card</span><span class="p">,</span> <span class="n">current_player</span><span class="p">,</span> <span class="n">next_player</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Executes the action of the draw card.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            last_card (Card): The last played card.</span>
+<span class="sd">            current_player (Player): The current player.</span>
+<span class="sd">            next_player (Player): The next player.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Description of the action.</span>
+<span class="sd">            str: Description of cards drawn by next player.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">game_master</span> <span class="o">=</span> <span class="n">ComponentManager</span><span class="o">.</span><span class="n">get_component</span><span class="p">(</span><span class="s2">&quot;game_master&quot;</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+        <span class="n">global_cards</span> <span class="o">=</span> <span class="n">ComponentManager</span><span class="o">.</span><span class="n">get_component</span><span class="p">(</span><span class="s2">&quot;draw&quot;</span><span class="p">)</span>
+
+        <span class="n">drawn</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bonus</span><span class="p">):</span>
+            <span class="n">random_card_uid</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">global_cards</span><span class="o">.</span><span class="n">cards</span><span class="p">))</span>
+            <span class="n">random_card_obj</span> <span class="o">=</span> <span class="n">ComponentManager</span><span class="o">.</span><span class="n">get_uid_object</span><span class="p">(</span><span class="n">random_card_uid</span><span class="p">)</span>
+            <span class="n">random_card_obj</span><span class="o">.</span><span class="n">transfer_owner</span><span class="p">(</span><span class="s2">&quot;draw&quot;</span><span class="p">,</span> <span class="n">next_player</span><span class="o">.</span><span class="n">uid</span><span class="p">,</span> <span class="n">forced</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">new_card</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">drawn</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">CYAN</span><span class="si">}{</span><span class="n">next_player</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> drew </span><span class="si">{</span><span class="n">random_card_obj</span><span class="o">.</span><span class="n">render</span><span class="p">()</span><span class="si">}{</span><span class="n">Color</span><span class="o">.</span><span class="n">CYAN</span><span class="si">}</span><span class="s2"> from the stack</span><span class="se">\n</span><span class="s2">&quot;</span>
+            
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_YELLOW</span><span class="si">}</span><span class="s2">You generously gave </span><span class="si">{</span><span class="n">next_player</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> more cards!</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">drawn</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        String representation of the draw card.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">past_render</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bonus</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">past_render</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">CYAN</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">PINK</span><span class="si">}</span><span class="s2">+</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">CYAN</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">bonus</span><span class="si">}</span><span class="s2">)</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">past_render</span></div>
+
+    
+<div class="viewcode-block" id="ReverseCard">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.ReverseCard">[docs]</a>
+<span class="k">class</span> <span class="nc">ReverseCard</span><span class="p">(</span><span class="n">JokerCard</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a reverse card (special type of joker card).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="n">CardColor</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes a reverse card with a color and title.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="ReverseCard.make_action">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.ReverseCard.make_action">[docs]</a>
+    <span class="k">def</span> <span class="nf">make_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">last_card</span><span class="p">,</span> <span class="n">current_player</span><span class="p">,</span> <span class="n">next_player</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Executes the action of the reverse card.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            last_card (Card): The last played card.</span>
+<span class="sd">            current_player (Player): The current player.</span>
+<span class="sd">            next_player (Player): The next player.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Description of the action.</span>
+<span class="sd">            None: Placeholder for additional action (if any).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">game_master</span> <span class="o">=</span> <span class="n">ComponentManager</span><span class="o">.</span><span class="n">get_component</span><span class="p">(</span><span class="s2">&quot;game_master&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">game_master</span><span class="o">.</span><span class="n">players</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">CYAN</span><span class="si">}</span><span class="s2">Oh, it&#39;s still your turn, </span><span class="si">{</span><span class="n">current_player</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">!</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="kc">None</span>
+        
+        <span class="n">game_master</span><span class="o">.</span><span class="n">game_direction</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">game_master</span><span class="o">.</span><span class="n">game_direction</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">CYAN</span><span class="si">}</span><span class="s2">Game direction has been reversed!</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="kc">None</span></div>
+</div>
+
+
+<div class="viewcode-block" id="Stack">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.Stack">[docs]</a>
+<span class="k">class</span> <span class="nc">Stack</span><span class="p">(</span><span class="n">UIDObject</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a stack of cards.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cards</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Card</span><span class="p">],</span> <span class="n">sorted_stack</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes a stack with an owner and cards.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            owner (str): The owner of the stack.</span>
+<span class="sd">            cards (dict[str, Card]): The cards in the stack.</span>
+<span class="sd">            sorted_stack (bool, optional): If True, the stack is sorted. Defaults to False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sorted_stack</span> <span class="o">=</span> <span class="n">sorted_stack</span>
+        <span class="n">card_list</span> <span class="o">=</span> <span class="n">cards</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sorted_stack</span><span class="p">:</span>
+            <span class="n">card_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">card_list</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cards</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="n">card_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">owner</span> <span class="o">=</span> <span class="n">owner</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_added_card</span> <span class="o">=</span> <span class="kc">None</span>
+        
+<div class="viewcode-block" id="Stack.shuffle_deck">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.Stack.shuffle_deck">[docs]</a>
+    <span class="k">def</span> <span class="nf">shuffle_deck</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">remain_last_card</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Shuffles the deck.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            remain_last_card (bool, optional): If True, the last card remains in place. Defaults to False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">remain_last_card</span><span class="p">:</span>
+            <span class="n">last_card_uid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_added_card</span><span class="o">.</span><span class="n">uid</span>
+        
+        <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cards</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">remain_last_card</span><span class="p">:</span>
+            <span class="n">last_card</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">last_card_uid</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="p">[</span><span class="n">last_card_uid</span><span class="p">]</span> <span class="o">=</span> <span class="n">last_card</span></div>
+
+    
+<div class="viewcode-block" id="Stack.clear_new_flag">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.Stack.clear_new_flag">[docs]</a>
+    <span class="k">def</span> <span class="nf">clear_new_flag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clears the new card flag for all cards in the stack.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">uid</span><span class="p">,</span> <span class="n">card_obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">card_obj</span><span class="o">.</span><span class="n">clear_new_flag</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Stack.get_card_per_index">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.Stack.get_card_per_index">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_card_per_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets a card by index.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            index (int): The index of the card.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Card: The card at the specified index.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No card at index: </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Stack.add_card">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.Stack.add_card">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_card</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card_obj</span><span class="p">:</span> <span class="n">Card</span><span class="p">,</span> <span class="n">new_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a card to the stack.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            card_obj (Card): The card to add.</span>
+<span class="sd">            new_flag (bool, optional): If True, marks the card as new. Defaults to False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">new_flag</span><span class="p">:</span>
+            <span class="n">card_obj</span><span class="o">.</span><span class="n">set_new_card</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="p">[</span><span class="n">card_obj</span><span class="o">.</span><span class="n">uid</span><span class="p">]</span> <span class="o">=</span> <span class="n">card_obj</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_added_card</span> <span class="o">=</span> <span class="n">card_obj</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sorted_stack</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cards</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">color</span><span class="o">.</span><span class="n">value</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Stack.remove_card">
+<a class="viewcode-back" href="../../api.html#uno.card_logic.Stack.remove_card">[docs]</a>
+    <span class="k">def</span> <span class="nf">remove_card</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card_obj</span><span class="p">:</span> <span class="n">Card</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes a card from the stack.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            card_obj (Card): The card to remove.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">card_obj</span><span class="o">.</span><span class="n">uid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="p">[</span><span class="n">card_obj</span><span class="o">.</span><span class="n">uid</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Card with UID </span><span class="si">{</span><span class="n">card_obj</span><span class="o">.</span><span class="n">uid</span><span class="si">}</span><span class="s2"> not found in stack&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        String representation of the stack.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">card_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">num_cards</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">card_list</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">num_cards</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="c1"># Display cards vertically</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">index</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">card</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">card</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">card_list</span><span class="p">))</span>
+        
+        <span class="c1"># Calculate the number of rows and columns needed for more than 10 cards</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="p">(</span><span class="n">num_cards</span> <span class="o">+</span> <span class="mi">3</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">(</span><span class="n">num_cards</span> <span class="o">+</span> <span class="n">rows</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">rows</span>
+
+        <span class="c1"># Determine the maximum length of card descriptions</span>
+        <span class="n">max_len</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">index</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">card</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">card</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">card_list</span><span class="p">))</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">columns</span><span class="p">):</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="n">columns</span> <span class="o">+</span> <span class="n">j</span>
+                <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">num_cards</span><span class="p">:</span>
+                    <span class="n">card_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">index</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">card_list</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">card_str</span><span class="si">:</span><span class="s2">&lt;</span><span class="si">{</span><span class="n">max_len</span><span class="si">}}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># Left align with fixed width</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">max_len</span><span class="p">)</span>  <span class="c1"># Fill empty spaces</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; | &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">row</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Dominik Krenn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

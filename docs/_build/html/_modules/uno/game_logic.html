@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>uno.game_logic &mdash; uno 00.00.01 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=d7bb8d4d"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            uno
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Documentation Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#overview">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#console-entry-point">Console Entry Point</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#script-entry">Script Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#card-logic">Card Logic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#game-logic">Game Logic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#utilities">Utilities</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">uno</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../uno.html">uno</a></li>
+      <li class="breadcrumb-item active">uno.game_logic</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for uno.game_logic</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span> <span class="nn">card_logic</span> <span class="kn">import</span> <span class="p">(</span><span class="n">CardType</span><span class="p">,</span>
+                        <span class="n">CardColor</span><span class="p">,</span>
+                        <span class="n">Card</span><span class="p">,</span>
+                        <span class="n">NumberCard</span><span class="p">,</span>
+                        <span class="n">JokerCard</span><span class="p">,</span>
+                        <span class="n">DrawCard</span><span class="p">,</span>
+                        <span class="n">ReverseCard</span><span class="p">,</span>
+                        <span class="n">Stack</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">UIDObject</span><span class="p">,</span> <span class="n">ComponentManager</span><span class="p">,</span> <span class="n">Color</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<div class="viewcode-block" id="Player">
+<a class="viewcode-back" href="../../api.html#uno.game_logic.Player">[docs]</a>
+<span class="k">class</span> <span class="nc">Player</span><span class="p">(</span><span class="n">UIDObject</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a player in the game.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">game_position</span><span class="p">:</span><span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes a player with a name and game position.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name (str): The name of the player.</span>
+<span class="sd">            game_position (int): The position of the player in the game.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game_position</span> <span class="o">=</span> <span class="n">game_position</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hands</span> <span class="o">=</span> <span class="n">Stack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">,</span> <span class="p">{},</span> <span class="n">sorted_stack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Player.get_uid">
+<a class="viewcode-back" href="../../api.html#uno.game_logic.Player.get_uid">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_uid</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the UID of a player by name.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name (str): The name of the player.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The UID of the player.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">uid</span><span class="p">,</span> <span class="n">player_obj</span> <span class="ow">in</span> <span class="n">ComponentManager</span><span class="o">.</span><span class="n">iterate_uid_objects</span><span class="p">(</span><span class="n">Player</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">player_obj</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">uid</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No match for Player: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Player.card_count">
+<a class="viewcode-back" href="../../api.html#uno.game_logic.Player.card_count">[docs]</a>
+    <span class="k">def</span> <span class="nf">card_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the count of cards in the player&#39;s hand.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: The number of cards in the player&#39;s hand.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hands</span><span class="o">.</span><span class="n">cards</span><span class="p">)</span></div>
+</div>
+
+
+<div class="viewcode-block" id="GameMaster">
+<a class="viewcode-back" href="../../api.html#uno.game_logic.GameMaster">[docs]</a>
+<span class="k">class</span> <span class="nc">GameMaster</span><span class="p">(</span><span class="n">UIDObject</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manages the overall game logic.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">players</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the GameMaster with a list of players.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            players (list): A list of player names.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">ComponentManager</span><span class="o">.</span><span class="n">register_component</span><span class="p">(</span><span class="s2">&quot;game_master&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">players</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_players</span><span class="p">(</span><span class="n">players</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">player_turn</span> <span class="o">=</span> <span class="n">Player</span><span class="o">.</span><span class="n">get_uid</span><span class="p">(</span><span class="n">players</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_stack</span> <span class="o">=</span> <span class="n">Stack</span><span class="p">(</span><span class="s2">&quot;global&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_cards</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_stack</span><span class="o">.</span><span class="n">shuffle_deck</span><span class="p">()</span>
+        <span class="n">ComponentManager</span><span class="o">.</span><span class="n">register_component</span><span class="p">(</span><span class="s2">&quot;global&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_stack</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">draw_stack</span> <span class="o">=</span> <span class="n">Stack</span><span class="p">(</span><span class="s2">&quot;draw&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">ComponentManager</span><span class="o">.</span><span class="n">register_component</span><span class="p">(</span><span class="s2">&quot;draw&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">draw_stack</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game_stack</span> <span class="o">=</span> <span class="n">Stack</span><span class="p">(</span><span class="s2">&quot;game&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">ComponentManager</span><span class="o">.</span><span class="n">register_component</span><span class="p">(</span><span class="s2">&quot;game&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_stack</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_game</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">game_direction</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game_active</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_user_action</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drawn_this_turn</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layed_this_turn</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">player_actions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">messages_for_next_player</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">_initialize_game</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the game by laying down the first card, dealing cards to players, and filling the draw stack.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">YELLOW</span><span class="si">}</span><span class="s2">Setting up the game...</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lay_down_first_card</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">GREEN</span><span class="si">}</span><span class="s2">Dealing cards to players...</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_give_players_cards</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">CYAN</span><span class="si">}</span><span class="s2">Preparing the draw stack...</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fill_draw_stack</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_lay_down_first_card</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lays down the first card of the game.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">random_card_uid</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_stack</span><span class="o">.</span><span class="n">cards</span><span class="p">))</span>
+            <span class="n">random_card_obj</span> <span class="o">=</span> <span class="n">ComponentManager</span><span class="o">.</span><span class="n">get_uid_object</span><span class="p">(</span><span class="n">random_card_uid</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">random_card_obj</span><span class="o">.</span><span class="n">card_type</span> <span class="o">!=</span> <span class="n">CardType</span><span class="o">.</span><span class="n">JOKER</span><span class="p">:</span>
+                <span class="n">random_card_obj</span><span class="o">.</span><span class="n">transfer_owner</span><span class="p">(</span><span class="s2">&quot;global&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">)</span>
+                <span class="k">break</span>
+
+    <span class="k">def</span> <span class="nf">_give_players_cards</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deals cards to players at the start of the game.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">player</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">players</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_transfer_random_card</span><span class="p">(</span><span class="s2">&quot;global&quot;</span><span class="p">,</span> <span class="n">player</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_fill_draw_stack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fills the draw stack with cards from the global stack.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cards_tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_stack</span><span class="o">.</span><span class="n">cards</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">card</span> <span class="ow">in</span> <span class="n">cards_tuple</span><span class="p">:</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">transfer_owner</span><span class="p">(</span><span class="s2">&quot;global&quot;</span><span class="p">,</span> <span class="s2">&quot;game&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_transfer_random_card</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_stack</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">to_stack</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transfers a random card from one stack to another.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            from_stack (str): The source stack.</span>
+<span class="sd">            to_stack (str): The destination stack.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">random_card_uid</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_stack</span><span class="o">.</span><span class="n">cards</span><span class="p">))</span>
+        <span class="n">random_card_obj</span> <span class="o">=</span> <span class="n">ComponentManager</span><span class="o">.</span><span class="n">get_uid_object</span><span class="p">(</span><span class="n">random_card_uid</span><span class="p">)</span>
+        <span class="n">random_card_obj</span><span class="o">.</span><span class="n">transfer_owner</span><span class="p">(</span><span class="n">from_stack</span><span class="p">,</span> <span class="n">to_stack</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_cards</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates the initial set of cards for the game.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict[str, Card]: The created cards.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cards</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">CardColor</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="n">CardColor</span><span class="o">.</span><span class="n">NO_COLOR</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+                <span class="n">new_card</span> <span class="o">=</span> <span class="n">NumberCard</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span>
+                <span class="n">new_card</span><span class="o">.</span><span class="n">owner</span> <span class="o">=</span> <span class="s2">&quot;global&quot;</span>
+                <span class="n">cards</span><span class="p">[</span><span class="n">new_card</span><span class="o">.</span><span class="n">uid</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_card</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_joker_cards</span><span class="p">(</span><span class="n">cards</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cards</span>
+
+    <span class="k">def</span> <span class="nf">_add_joker_cards</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cards</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds joker cards to the set of cards.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cards (dict[str, Card]): The set of cards.</span>
+<span class="sd">            color (CardColor): The color of the joker cards.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">draw_2</span> <span class="o">=</span> <span class="n">DrawCard</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="s2">&quot;draw 2&quot;</span><span class="p">)</span>
+        <span class="n">draw_2</span><span class="o">.</span><span class="n">owner</span> <span class="o">=</span> <span class="s2">&quot;global&quot;</span>
+        <span class="n">cards</span><span class="p">[</span><span class="n">draw_2</span><span class="o">.</span><span class="n">uid</span><span class="p">]</span> <span class="o">=</span> <span class="n">draw_2</span>
+
+        <span class="n">draw_4</span> <span class="o">=</span> <span class="n">DrawCard</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="s2">&quot;draw 4&quot;</span><span class="p">)</span>
+        <span class="n">draw_4</span><span class="o">.</span><span class="n">owner</span> <span class="o">=</span> <span class="s2">&quot;global&quot;</span>
+        <span class="n">cards</span><span class="p">[</span><span class="n">draw_4</span><span class="o">.</span><span class="n">uid</span><span class="p">]</span> <span class="o">=</span> <span class="n">draw_4</span>
+        
+        <span class="n">card_reverse</span> <span class="o">=</span> <span class="n">ReverseCard</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="s2">&quot;reverse&quot;</span><span class="p">)</span>
+        <span class="n">card_reverse</span><span class="o">.</span><span class="n">owner</span> <span class="o">=</span> <span class="s2">&quot;global&quot;</span>
+        <span class="n">cards</span><span class="p">[</span><span class="n">card_reverse</span><span class="o">.</span><span class="n">uid</span><span class="p">]</span> <span class="o">=</span> <span class="n">card_reverse</span>
+
+        <span class="n">draw_4_no_color</span> <span class="o">=</span> <span class="n">DrawCard</span><span class="p">(</span><span class="n">CardColor</span><span class="o">.</span><span class="n">NO_COLOR</span><span class="p">,</span> <span class="s2">&quot;draw 4&quot;</span><span class="p">)</span>
+        <span class="n">draw_4_no_color</span><span class="o">.</span><span class="n">owner</span> <span class="o">=</span> <span class="s2">&quot;global&quot;</span>
+        <span class="n">cards</span><span class="p">[</span><span class="n">draw_4_no_color</span><span class="o">.</span><span class="n">uid</span><span class="p">]</span> <span class="o">=</span> <span class="n">draw_4_no_color</span>
+
+    <span class="k">def</span> <span class="nf">_init_players</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">players</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes player objects.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            players (list): A list of player names.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict[str, Player]: The created players.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">created_players</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">player_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">players</span><span class="p">):</span>
+            <span class="n">new_player</span> <span class="o">=</span> <span class="n">Player</span><span class="p">(</span><span class="n">player_name</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+            <span class="n">created_players</span><span class="p">[</span><span class="n">new_player</span><span class="o">.</span><span class="n">uid</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_player</span>
+        <span class="k">return</span> <span class="n">created_players</span>
+
+<div class="viewcode-block" id="GameMaster.get_players_for_cycle">
+<a class="viewcode-back" href="../../api.html#uno.game_logic.GameMaster.get_players_for_cycle">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_players_for_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the current and next player for the game cycle.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Player: The current player.</span>
+<span class="sd">            Player: The next player.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">current_player</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">players</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">player_turn</span><span class="p">]</span>
+        <span class="n">next_player_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_next_player_position</span><span class="p">(</span><span class="n">current_player</span><span class="o">.</span><span class="n">game_position</span><span class="p">)</span>
+        <span class="n">next_player</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">player_obj</span> <span class="k">for</span> <span class="n">uid</span><span class="p">,</span> <span class="n">player_obj</span> <span class="ow">in</span> <span class="n">ComponentManager</span><span class="o">.</span><span class="n">iterate_uid_objects</span><span class="p">(</span><span class="n">Player</span><span class="p">)</span> <span class="k">if</span> <span class="n">player_obj</span><span class="o">.</span><span class="n">game_position</span> <span class="o">==</span> <span class="n">next_player_pos</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">current_player</span><span class="p">,</span> <span class="n">next_player</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_get_next_player_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_position</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the position of the next player based on the current position.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            current_position (int): The current player&#39;s position.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: The next player&#39;s position.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">next_position</span> <span class="o">=</span> <span class="p">(</span><span class="n">current_position</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_direction</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">players</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">next_position</span>
+
+<div class="viewcode-block" id="GameMaster.show_winner">
+<a class="viewcode-back" href="../../api.html#uno.game_logic.GameMaster.show_winner">[docs]</a>
+    <span class="k">def</span> <span class="nf">show_winner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">winner</span><span class="p">:</span> <span class="n">Player</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Displays the winner of the game.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            winner (Player): The winning player.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s2">&quot;clear&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">ORANGE</span><span class="si">}</span><span class="s2">#############################################################</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">BG_GREEN</span><span class="si">}{</span><span class="s1">&#39; &#39;</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;#############################################################&#39;</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">6</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">win_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">DARK_GRAY</span><span class="si">}</span><span class="s2">Player </span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">WHITE</span><span class="si">}{</span><span class="n">winner</span><span class="o">.</span><span class="n">name</span><span class="si">}{</span><span class="n">Color</span><span class="o">.</span><span class="n">DARK_GRAY</span><span class="si">}</span><span class="s2"> has conquered the game!</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\r\r</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">BG_GREEN</span><span class="si">}{</span><span class="n">win_str</span><span class="si">}{</span><span class="n">Color</span><span class="o">.</span><span class="n">BG_GREEN</span><span class="si">}{</span><span class="s1">&#39; &#39;</span><span class="o">*</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;#############################################################&#39;</span><span class="p">)</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">win_str</span><span class="p">)))</span><span class="si">}{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">BG_GREEN</span><span class="si">}{</span><span class="s1">&#39; &#39;</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;#############################################################&#39;</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">ORANGE</span><span class="si">}</span><span class="s2">#############################################################</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">input</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">MAGENTA</span><span class="si">}</span><span class="s2">Press Enter to bask in the glory of the victor!</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s2">&quot;clear&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GameMaster.show_censor_part">
+<a class="viewcode-back" href="../../api.html#uno.game_logic.GameMaster.show_censor_part">[docs]</a>
+    <span class="k">def</span> <span class="nf">show_censor_part</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">player</span><span class="p">:</span> <span class="n">Player</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Displays a pause screen between player turns.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            player (Player): The next player.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s2">&quot;clear&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">ORANGE</span><span class="si">}</span><span class="s2">#############################################################</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_YELLOW</span><span class="si">}</span><span class="s2">Next player, please step up: </span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_RED</span><span class="si">}{</span><span class="n">player</span><span class="o">.</span><span class="n">name</span><span class="si">}{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">ORANGE</span><span class="si">}</span><span class="s2">#############################################################</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">input</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">MAGENTA</span><span class="si">}</span><span class="s2">Press Enter to continue the chaos!</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s2">&quot;clear&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GameMaster.show_current_player_deck">
+<a class="viewcode-back" href="../../api.html#uno.game_logic.GameMaster.show_current_player_deck">[docs]</a>
+    <span class="k">def</span> <span class="nf">show_current_player_deck</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">player</span><span class="p">:</span> <span class="n">Player</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Displays the current player&#39;s deck and actions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            player (Player): The current player.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The player&#39;s chosen action.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s2">&quot;clear&quot;</span><span class="p">)</span>
+        <span class="n">others_hands</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_others_hands</span><span class="p">(</span><span class="n">player</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">ORANGE</span><span class="si">}</span><span class="s2">==================================================</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+              <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_YELLOW</span><span class="si">}</span><span class="s2">It&#39;s your turn, </span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_RED</span><span class="si">}{</span><span class="n">player</span><span class="o">.</span><span class="n">name</span><span class="si">}{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_YELLOW</span><span class="si">}</span><span class="s2">!</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+              <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_YELLOW</span><span class="si">}</span><span class="s2">Top card on the stack:</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">game_stack</span><span class="o">.</span><span class="n">last_added_card</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+              <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_YELLOW</span><span class="si">}</span><span class="s2">Rival players&#39; decks:</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">others_hands</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+              <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_WHITE</span><span class="si">}</span><span class="s2">Your cards:</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">player</span><span class="o">.</span><span class="n">hands</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+              <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">player_actions</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        
+        <span class="n">player_action</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_YELLOW</span><span class="si">}</span><span class="s2">What will you do?</span><span class="se">\n</span><span class="s2">&quot;</span>
+                              <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_YELLOW</span><span class="si">}</span><span class="s2">Type a number from </span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_RED</span><span class="si">}</span><span class="s2">1</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_YELLOW</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_RED</span><span class="si">}{</span><span class="nb">len</span><span class="p">(</span><span class="n">player</span><span class="o">.</span><span class="n">hands</span><span class="o">.</span><span class="n">cards</span><span class="p">)</span><span class="si">}{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_YELLOW</span><span class="si">}</span><span class="s2"> for the corresponding card in your hand,</span><span class="se">\n</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span>
+                              <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_RED</span><span class="si">}</span><span class="s2">draw</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_YELLOW</span><span class="si">}</span><span class="s2"> to take a card, or </span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_RED</span><span class="si">}</span><span class="s2">skip</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_YELLOW</span><span class="si">}</span><span class="s2"> to pass your turn.</span><span class="se">\n</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span>
+                              <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_YELLOW</span><span class="si">}</span><span class="s2">Choose wisely, </span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_RED</span><span class="si">}{</span><span class="n">player</span><span class="o">.</span><span class="n">name</span><span class="si">}{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_YELLOW</span><span class="si">}</span><span class="s2">...</span><span class="se">\n</span><span class="s2">Action: </span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">LIGHT_CYAN</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">player_action</span></div>
+
+    
+    <span class="k">def</span> <span class="nf">_get_others_hands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">player</span><span class="p">:</span> <span class="n">Player</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the hands of other players.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            player (Player): The current player.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: A string representation of other players&#39; hands.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">others_hands</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">other</span> <span class="ow">in</span> <span class="n">ComponentManager</span><span class="o">.</span><span class="n">iterate_uid_objects</span><span class="p">(</span><span class="n">Player</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">uid</span> <span class="o">!=</span> <span class="n">player</span><span class="o">.</span><span class="n">uid</span><span class="p">:</span>
+                <span class="n">others_hands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">other</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">other</span><span class="o">.</span><span class="n">card_count</span><span class="p">()</span><span class="si">}</span><span class="s2"> cards&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">others_hands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&gt;&gt;</span><span class="si">{</span><span class="n">other</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">other</span><span class="o">.</span><span class="n">card_count</span><span class="p">()</span><span class="si">}</span><span class="s2"> cards&quot;</span><span class="p">)</span>
+                
+        <span class="n">lenght_player</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">others_hands</span><span class="p">)</span><span class="c1">#</span>
+        <span class="n">game_direction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_direction</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">others_hands</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">game_direction</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">others_hands</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;/\ &quot;</span> <span class="o">+</span> <span class="n">others_hands</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">index</span> <span class="o">==</span> <span class="n">lenght_player</span><span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">game_direction</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">others_hands</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\/ &quot;</span> <span class="o">+</span> <span class="n">others_hands</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">others_hands</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;|| &quot;</span> <span class="o">+</span> <span class="n">others_hands</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">others_hands</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+<div class="viewcode-block" id="GameMaster.make_player_action">
+<a class="viewcode-back" href="../../api.html#uno.game_logic.GameMaster.make_player_action">[docs]</a>
+    <span class="k">def</span> <span class="nf">make_player_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_player</span><span class="p">,</span> <span class="n">next_player</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Makes the player&#39;s action.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            current_player (Player): The current player.</span>
+<span class="sd">            next_player (Player): The next player.</span>
+<span class="sd">            action (str): The action chosen by the current player.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;del&quot;</span><span class="p">:</span>
+            <span class="n">card</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_stack</span><span class="o">.</span><span class="n">last_added_card</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">player_actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">BG_RED</span><span class="si">}{</span><span class="n">Color</span><span class="o">.</span><span class="n">WHITE</span><span class="si">}</span><span class="s2">DELETED </span><span class="si">{</span><span class="n">card</span><span class="si">}{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">messages_for_next_player</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">BG_RED</span><span class="si">}{</span><span class="n">Color</span><span class="o">.</span><span class="n">WHITE</span><span class="si">}</span><span class="s2">DELETED </span><span class="si">{</span><span class="n">card</span><span class="si">}{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">game_stack</span><span class="o">.</span><span class="n">remove_card</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+            <span class="n">UIDObject</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_user_action</span> <span class="o">=</span> <span class="s2">&quot;dell&quot;</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;draw&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">drawn_this_turn</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">layed_this_turn</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_draw_card</span><span class="p">(</span><span class="n">current_player</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;next&quot;</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">drawn_this_turn</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">layed_this_turn</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_user_action</span> <span class="o">=</span> <span class="s2">&quot;next&quot;</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">action</span><span class="o">.</span><span class="n">isdecimal</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">layed_this_turn</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_play_card_action</span><span class="p">(</span><span class="n">current_player</span><span class="p">,</span> <span class="n">next_player</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_user_action</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Invalid action: </span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_current_player_deck</span><span class="p">(</span><span class="n">current_player</span><span class="p">)</span></div>
+
+        
+    <span class="k">def</span> <span class="nf">_draw_card</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_player</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Draws a card for the current player.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            current_player (Player): The current player.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">draw_stack_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">draw_stack</span><span class="o">.</span><span class="n">cards</span><span class="p">)</span>
+        <span class="n">card</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">draw_stack</span><span class="o">.</span><span class="n">get_card_per_index</span><span class="p">(</span><span class="n">draw_stack_len</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">card</span><span class="o">.</span><span class="n">transfer_owner</span><span class="p">(</span><span class="s2">&quot;draw&quot;</span><span class="p">,</span> <span class="n">current_player</span><span class="o">.</span><span class="n">uid</span><span class="p">,</span> <span class="n">new_card</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_user_action</span> <span class="o">=</span> <span class="s2">&quot;draw&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drawn_this_turn</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">player_actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">CYAN</span><span class="si">}</span><span class="s2">You drew </span><span class="si">{</span><span class="n">card</span><span class="o">.</span><span class="n">render</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">CYAN</span><span class="si">}</span><span class="s2">from the stack.</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">_is_valid_card_to_play</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game_card</span><span class="p">,</span> <span class="n">player_card</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the player&#39;s card is valid to play.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            game_card (Card): The top card on the game stack.</span>
+<span class="sd">            player_card (Card): The card the player wants to play.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the card is valid to play, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">player_card</span><span class="o">.</span><span class="n">card_type</span> <span class="o">==</span> <span class="n">CardType</span><span class="o">.</span><span class="n">JOKER</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_valid_joker_card</span><span class="p">(</span><span class="n">game_card</span><span class="p">,</span> <span class="n">player_card</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_valid_number_card</span><span class="p">(</span><span class="n">game_card</span><span class="p">,</span> <span class="n">player_card</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_is_valid_joker_card</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game_card</span><span class="p">,</span> <span class="n">player_card</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the joker card is valid to play.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            game_card (Card): The top card on the game stack.</span>
+<span class="sd">            player_card (Card): The joker card the player wants to play.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the card is valid to play, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">player_card</span><span class="o">.</span><span class="n">color</span> <span class="o">==</span> <span class="n">CardColor</span><span class="o">.</span><span class="n">NO_COLOR</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">game_card</span><span class="o">.</span><span class="n">card_type</span> <span class="o">==</span> <span class="n">CardType</span><span class="o">.</span><span class="n">JOKER</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">game_card</span><span class="o">.</span><span class="n">color</span> <span class="o">==</span> <span class="n">CardColor</span><span class="o">.</span><span class="n">NO_COLOR</span> <span class="ow">or</span> <span class="n">game_card</span><span class="o">.</span><span class="n">color</span> <span class="o">==</span> <span class="n">player_card</span><span class="o">.</span><span class="n">color</span>
+        <span class="k">return</span> <span class="n">game_card</span><span class="o">.</span><span class="n">color</span> <span class="o">==</span> <span class="n">player_card</span><span class="o">.</span><span class="n">color</span>
+
+    <span class="k">def</span> <span class="nf">_is_valid_number_card</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game_card</span><span class="p">,</span> <span class="n">player_card</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the numbered card is valid to play.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            game_card (Card): The top card on the game stack.</span>
+<span class="sd">            player_card (Card): The numbered card the player wants to play.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the card is valid to play, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">game_card</span><span class="o">.</span><span class="n">card_type</span> <span class="o">==</span> <span class="n">CardType</span><span class="o">.</span><span class="n">JOKER</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">game_card</span><span class="o">.</span><span class="n">color</span> <span class="o">==</span> <span class="n">player_card</span><span class="o">.</span><span class="n">color</span> <span class="ow">or</span> <span class="n">game_card</span><span class="o">.</span><span class="n">number</span> <span class="o">==</span> <span class="n">player_card</span><span class="o">.</span><span class="n">number</span>
+
+    <span class="k">def</span> <span class="nf">_play_card_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_player</span><span class="p">,</span> <span class="n">next_player</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Executes the action of playing a card.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            current_player (Player): The current player.</span>
+<span class="sd">            next_player (Player): The next player.</span>
+<span class="sd">            action (str): The action chosen by the current player.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_user_action</span> <span class="o">=</span> <span class="s2">&quot;invalid&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">player_actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RED</span><span class="si">}</span><span class="s2">&#39;</span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2">&#39; is not a valid move.</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">game_card</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_stack</span><span class="o">.</span><span class="n">last_added_card</span>
+        <span class="n">player_card</span> <span class="o">=</span> <span class="n">current_player</span><span class="o">.</span><span class="n">hands</span><span class="o">.</span><span class="n">get_card_per_index</span><span class="p">(</span><span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">action_response</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_valid_card_to_play</span><span class="p">(</span><span class="n">game_card</span><span class="p">,</span> <span class="n">player_card</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">player_card</span><span class="o">.</span><span class="n">card_type</span> <span class="o">==</span> <span class="n">CardType</span><span class="o">.</span><span class="n">JOKER</span><span class="p">:</span>
+                <span class="n">action_response</span><span class="p">,</span> <span class="n">next_player_response</span> <span class="o">=</span> <span class="n">player_card</span><span class="o">.</span><span class="n">make_action</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game_stack</span><span class="o">.</span><span class="n">last_added_card</span><span class="p">,</span> <span class="n">current_player</span><span class="p">,</span> <span class="n">next_player</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">next_player_response</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">messages_for_next_player</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">next_player_response</span><span class="p">)</span>
+            <span class="n">player_card</span><span class="o">.</span><span class="n">transfer_owner</span><span class="p">(</span><span class="n">current_player</span><span class="o">.</span><span class="n">uid</span><span class="p">,</span> <span class="s2">&quot;game&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_user_action</span> <span class="o">=</span> <span class="s2">&quot;played-card&quot;</span>
+            <span class="k">if</span> <span class="n">action_response</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">player_actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action_response</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">player_actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">GREEN</span><span class="si">}</span><span class="s2">You played the card </span><span class="si">{</span><span class="n">player_card</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">layed_this_turn</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_user_action</span> <span class="o">=</span> <span class="s2">&quot;wrong-card&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">player_actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RED</span><span class="si">}</span><span class="s2">Your card </span><span class="si">{</span><span class="n">player_card</span><span class="si">}</span><span class="s2"> doesn&#39;t match the top card!</span><span class="si">{</span><span class="n">Color</span><span class="o">.</span><span class="n">RESET</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GameMaster.check_winner">
+<a class="viewcode-back" href="../../api.html#uno.game_logic.GameMaster.check_winner">[docs]</a>
+    <span class="k">def</span> <span class="nf">check_winner</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if there is a winner.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Player: The winning player if there is a winner, None otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">uid</span><span class="p">,</span> <span class="n">player</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">players</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">player</span><span class="o">.</span><span class="n">hands</span><span class="o">.</span><span class="n">cards</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">show_winner</span><span class="p">(</span><span class="n">player</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GameMaster.game_cycle">
+<a class="viewcode-back" href="../../api.html#uno.game_logic.GameMaster.game_cycle">[docs]</a>
+    <span class="k">def</span> <span class="nf">game_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">first_round</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Executes a game cycle.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            first_round (bool): If True, this is the first round of the game.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">current_player</span><span class="p">,</span> <span class="n">next_player</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_players_for_cycle</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">first_round</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">show_censor_part</span><span class="p">(</span><span class="n">current_player</span><span class="p">)</span>
+        <span class="n">player_action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_current_player_deck</span><span class="p">(</span><span class="n">current_player</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make_player_action</span><span class="p">(</span><span class="n">current_player</span><span class="p">,</span> <span class="n">next_player</span><span class="p">,</span> <span class="n">player_action</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_user_action</span> <span class="o">==</span> <span class="s2">&quot;next&quot;</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">drawn_this_turn</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">layed_this_turn</span><span class="p">):</span>
+            <span class="n">current_player</span><span class="o">.</span><span class="n">hands</span><span class="o">.</span><span class="n">clear_new_flag</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drawn_this_turn</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">layed_this_turn</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">player_actions</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">player_actions</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">messages_for_next_player</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">messages_for_next_player</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">player_turn</span> <span class="o">=</span> <span class="n">next_player</span><span class="o">.</span><span class="n">uid</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">show_censor_part</span><span class="p">(</span><span class="n">next_player</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GameMaster.start">
+<a class="viewcode-back" href="../../api.html#uno.game_logic.GameMaster.start">[docs]</a>
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Starts the game.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">first_round</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_active</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_user_action</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">draw_stack</span><span class="o">.</span><span class="n">cards</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+                <span class="n">first_card</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_stack</span><span class="o">.</span><span class="n">last_added_card</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">game_stack</span><span class="o">.</span><span class="n">shuffle_deck</span><span class="p">()</span>
+                <span class="n">card_tuples</span> <span class="o">=</span> <span class="p">[(</span><span class="n">uid</span><span class="p">,</span> <span class="n">card</span><span class="p">)</span> <span class="k">for</span> <span class="n">uid</span><span class="p">,</span> <span class="n">card</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_stack</span><span class="o">.</span><span class="n">cards</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+                <span class="k">for</span> <span class="n">uid</span><span class="p">,</span> <span class="n">card</span> <span class="ow">in</span> <span class="n">card_tuples</span><span class="p">:</span>
+                    <span class="n">card</span><span class="o">.</span><span class="n">transfer_owner</span><span class="p">(</span><span class="s2">&quot;game&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">)</span>
+                <span class="n">first_card</span><span class="o">.</span><span class="n">transfer_owner</span><span class="p">(</span><span class="s2">&quot;draw&quot;</span><span class="p">,</span> <span class="s2">&quot;game&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">game_stack</span><span class="o">.</span><span class="n">last_added_card</span> <span class="o">=</span> <span class="n">first_card</span>
+                
+            <span class="bp">self</span><span class="o">.</span><span class="n">game_cycle</span><span class="p">(</span><span class="n">first_round</span><span class="p">)</span>
+            <span class="n">first_round</span> <span class="o">=</span> <span class="kc">False</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Dominik Krenn.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
