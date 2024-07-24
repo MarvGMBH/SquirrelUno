@@ -74,7 +74,6 @@ class GameMaster(UIDObject):
         for player in self.players.values():
             for _ in range(7):
                 self._transfer_random_card("global", player.uid)
-            break
 
     def _fill_draw_stack(self):
         cards_tuple = tuple(self.global_stack.cards.values())
@@ -199,6 +198,14 @@ class GameMaster(UIDObject):
         return "\n".join(others_hands) + "\n"
 
     def make_player_action(self, current_player, next_player, action: str):
+        if action == "del":
+            card = self.game_stack.last_added_card
+            self.player_actions.append(f"{Color.BG_RED}{Color.WHITE}DELETED {card}{Color.RESET}")
+            self.messages_for_next_player.append(f"{Color.BG_RED}{Color.WHITE}DELETED {card}{Color.RESET}")
+            self.game_stack.remove_card(card)
+            UIDObject.remove(card.uid)
+            self.last_user_action = "dell"
+            return
         if action == "draw" and not (self.drawn_this_turn or self.layed_this_turn):
             self._draw_card(current_player)
             return

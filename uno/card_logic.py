@@ -167,7 +167,7 @@ class ReverseCard(JokerCard):
     def __init__(self, color: CardColor, title: str):
         super().__init__(color, title)
         
-    def make_action(self, current_player, next_player):
+    def make_action(self, last_card, current_player, next_player):
         game_master = ComponentManager.get_component("game_master")
         if len(game_master.players) == 2:
             return f"{Color.CYAN}Oh, it's still your turn, {current_player.name}!{Color.RESET}", None
