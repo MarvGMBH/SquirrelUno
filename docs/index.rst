@@ -34,7 +34,7 @@ Getting Started
    :width: 150px
    :height: 150px
 
-Detailed API documentation is available in the API section.
+Detailed API documentation is available in the  section.
 
 Indices and Tables
 ==================
