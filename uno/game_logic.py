@@ -1,6 +1,14 @@
 from __future__ import annotations
-from card_logic import CardType, CardColor, Card, NumberCard, JokerCard, Stack
-from utils import UIDObject, ComponentManager
+from card_logic import (CardType,
+                        CardColor,
+                        Card,
+                        NumberCard,
+                        JokerCard,
+                        DrawCard,
+                        ReverseCard,
+                        Stack)
+
+from utils import UIDObject, ComponentManager, Color
 import random
 import os
 
@@ -45,15 +53,9 @@ class GameMaster(UIDObject):
         self.drawn_this_turn = False
         self.layed_this_turn = False
         self.player_actions = []
-        
-        self.color_codes = {
-            'red': '\033[31m',
-            'blue': '\033[34m',
-            'yellow': '\033[33m',
-            'green': '\033[32m',
-            'no_color': '\033[38;5;214m',
-            'reset': '\033[0m'
-        }
+        self.messages_for_next_player = []
+        self.draw_card_active = False
+        self.newest_draw_card = None
 
     def _initialize_game(self):
         print("Laying down first card...")
@@ -99,23 +101,26 @@ class GameMaster(UIDObject):
                 cards[new_card.uid] = new_card
 
             self._add_joker_cards(cards, color)
+            self._add_joker_cards(cards, color)
+            self._add_joker_cards(cards, color)
+            self._add_joker_cards(cards, color)
 
         return cards
 
     def _add_joker_cards(self, cards, color):
-        draw_2 = JokerCard(color, "draw 2")
+        draw_2 = DrawCard(color, "draw 2")
         draw_2.owner = "global"
         cards[draw_2.uid] = draw_2
 
-        draw_4 = JokerCard(color, "draw 4")
+        draw_4 = DrawCard(color, "draw 4")
         draw_4.owner = "global"
         cards[draw_4.uid] = draw_4
         
-        card_reverse = JokerCard(color, "reverse")
+        card_reverse = ReverseCard(color, "reverse")
         card_reverse.owner = "global"
         cards[card_reverse.uid] = card_reverse
 
-        draw_4_no_color = JokerCard(CardColor.NO_COLOR, "draw 4")
+        draw_4_no_color = DrawCard(CardColor.NO_COLOR, "draw 4")
         draw_4_no_color.owner = "global"
         cards[draw_4_no_color.uid] = draw_4_no_color
 
@@ -136,36 +141,49 @@ class GameMaster(UIDObject):
         next_position = (current_position + self.game_direction) % len(self.players)
         return next_position
 
+    def show_winner(self, winner:Player):
+        os.system("clear")
+        print(f"{Color.ORANGE}#############################################################{Color.RESET}")
+        print(f"{Color.BG_GREEN}{' '*len('#############################################################')}\n{Color.RESET}" * 6, end="")
+        win_str = f"{Color.DARK_GRAY}Player {Color.WHITE}{winner.name}{Color.DARK_GRAY} won the game{Color.RESET}"
+        print(f"\r\r{Color.BG_GREEN}{win_str}{Color.BG_GREEN}{' '*(3*(len('#############################################################')-len(win_str)))}{Color.RESET}")
+        print(f"{Color.BG_GREEN}{' '*len('#############################################################')}\n{Color.RESET}" * 6)
+        print(f"{Color.ORANGE}#############################################################{Color.RESET}")
+        input(f"{Color.MAGENTA}Press enter to continue{Color.RESET}")
+        os.system("clear")
+
     def show_censor_part(self, player: Player):
         os.system("clear")
-        print("#########################################")
+        print(f"{Color.ORANGE}#############################################################{Color.RESET}")
         print("\n" * 6)
-        print(f" Next player please: {player.name}")
+        print(f" {Color.LIGHT_YELLOW}Next player please: {Color.LIGHT_RED}{player.name}{Color.RESET}")
         print("\n" * 6)
-        print("#########################################")
-        input("Press enter to continue")
+        print(f"{Color.ORANGE}#############################################################{Color.RESET}")
+        input(f"{Color.MAGENTA}Press enter to continue{Color.RESET}")
         os.system("clear")
 
     def show_current_player_deck(self, player: Player):
         os.system("clear")
         others_hands = self._get_others_hands(player)
 
-        print("=========================",
-              f"Player turn: {player.name}",
-              f"Top card: {self.game_stack.last_added_card}",
-              f"Other players' decks:\n{others_hands}",
-              f"On your hands:\n{player.hands}",
+        print(f"{Color.ORANGE}=================================================={Color.RESET}",
+              f"{Color.LIGHT_YELLOW}Player turn:{Color.RESET} {player.name}",
+              f"{Color.LIGHT_YELLOW}Top card:{Color.RESET} {self.game_stack.last_added_card}",
+              f"{Color.LIGHT_YELLOW}Other players' decks:{Color.RESET}\n{others_hands}",
+              f"{Color.LIGHT_WHITE}On your hands:{Color.RESET}\n{player.hands}",
               sep="\n")
         print("")
         for line in self.player_actions:
             print(line)
         print("")
         
-        return input(f"Choose your action:\n"
-                     f"Enter a number from 1 to {len(player.hands.cards)} for the corresponding card in your deck,\n"
-                     f"'draw' to take a card, or 'skip' to skip your turn (after drawing).\n"
-                     f"What will it be, {player.name}?\nAction: ")
-
+        player_action= input(f"{Color.LIGHT_YELLOW}Choose your action:\n"
+                             f"{Color.LIGHT_YELLOW}Enter a number from {Color.LIGHT_RED}1{Color.LIGHT_YELLOW} to {Color.LIGHT_RED}{len(player.hands.cards)}{Color.LIGHT_YELLOW} for the corresponding card in your deck,\n{Color.RESET}"
+                             f"{Color.LIGHT_RED}draw{Color.LIGHT_YELLOW} to take a card, or {Color.LIGHT_RED}skip{Color.LIGHT_YELLOW} to switch to next player.\n{Color.RESET}"
+                             f"{Color.LIGHT_YELLOW}What will it be, {Color.LIGHT_RED}{player.name}{Color.LIGHT_YELLOW}?\nAction:{Color.LIGHT_CYAN}")
+        print(Color.RESET)
+        return player_action
+    
     def _get_others_hands(self, player: Player):
         others_hands = ""
         for _, other in ComponentManager.iterate_uid_objects(Player):
@@ -174,7 +192,11 @@ class GameMaster(UIDObject):
         return others_hands
 
     def make_player_action(self, current_player, next_player, action: str):
-        if action == "draw" and not (self.drawn_this_turn or self.layed_this_turn):
+        if action == "draw" and (not (self.drawn_this_turn or self.layed_this_turn) or self.draw_card_active):
+            if self.draw_card_active:
+                self.newest_draw_card.give_out_draw(current_player)
+                self.draw_card_active = False
+                return
             self._draw_card(current_player)
             return
         if action == "next" and (self.drawn_this_turn or self.layed_this_turn):
@@ -188,30 +210,40 @@ class GameMaster(UIDObject):
         self.show_current_player_deck(current_player)
         
     def _draw_card(self, current_player):
-        draw_stack_len = len(self.draw_stack.cards)
-        card = self.draw_stack.get_card_per_index(draw_stack_len - 1)
+        # Draw a card from the draw stack
+        card = self.draw_stack.get_card_per_index(-1)  # Get the last card
         card.transfer_owner("draw", current_player.uid, new_card=True)
         self.last_user_action = "draw"
         self.drawn_this_turn = True
-        self.player_actions.append(f"{self.color_codes['yellow']}You got {card} {self.color_codes['yellow']}from stack{self.color_codes['reset']}")
+        self.player_actions.append(f"{Color.CYAN}You got {card.render()} {Color.CYAN}from stack{Color.RESET}")
         
     def _is_valid_card_to_play(self, game_card, player_card):
-        return (
-            (player_card.color == CardColor.NO_COLOR or game_card.color == player_card.color)
-            and player_card.card_type == CardType.JOKER
-        ) or (
-            game_card.card_type == CardType.JOKER
-            and (game_card.color == CardColor.NO_COLOR or game_card.color == player_card.color or game_card.title == player_card.title)
-        ) or (
-            game_card.color == player_card.color or game_card.number == player_card.number
-        )
+        if player_card.card_type == CardType.JOKER:
+            return self._is_valid_joker_card(game_card, player_card)
+        else:
+            return self._is_valid_number_card(game_card, player_card)
+
+    def _is_valid_joker_card(self, game_card, player_card):
+        # Logic for validating a JOKER card
+        if player_card.color == CardColor.NO_COLOR:
+            return True
+        if game_card.card_type == CardType.JOKER:
+            return game_card.color == CardColor.NO_COLOR or game_card.color == player_card.color
+        return game_card.color == player_card.color
+
+    def _is_valid_number_card(self, game_card, player_card):
+        # Logic for validating a NUMBER card
+        if game_card.card_type == CardType.JOKER:
+            return False  # Number cards can't match JOKER attributes
+        return game_card.color == player_card.color or game_card.number == player_card.number
+
         
     def _play_card_action(self, current_player, next_player, action):
         try:
             index = int(action)
         except ValueError:
             self.last_user_action = "invalid"
-            self.player_actions.append(f"{self.color_codes['red']}'{action}' is invalid{self.color_codes['reset']}")
+            self.player_actions.append(f"{Color.RED}'{action}' is invalid{Color.RESET}")
             return
 
         game_card = self.game_stack.last_added_card
@@ -219,21 +251,24 @@ class GameMaster(UIDObject):
         action_response = None
         if self._is_valid_card_to_play(game_card, player_card):
             if player_card.card_type == CardType.JOKER:
-                action_response = player_card.make_action(next_player)
+                action_response, next_player_response = player_card.make_action(self.game_stack.last_added_card, current_player, next_player)
+                if next_player_response is not None:
+                    self.messages_for_next_player.append(next_player_response)
             player_card.transfer_owner(current_player.uid, "game")
             self.last_user_action = "played-card"
-            if action_response == "draw-ok":
-                self.player_actions.append(f"{self.color_codes['no_color']}ohh yea... take that {self.color_codes['blue']}{next_player.name}{self.color_codes['no_color']} you just got some free cards :P{self.color_codes['reset']}")
-            elif action_response == "reverse-same-again":
-                self.player_actions.append(f"{self.color_codes['no_color']}oh yeah... you again{self.color_codes['reset']}")
-            elif action_response == "reverse-ok":
-                self.player_actions.append(f"{self.color_codes['no_color']}reversed direction :P{self.color_codes['reset']}")
+            if action_response is not None:
+                self.player_actions.append(action_response)
             else:
-                self.player_actions.append(f"{self.color_codes['green']}you player the card {player_card}")
+                self.player_actions.append(f"{Color.GREEN}you player the card {player_card}")
             self.layed_this_turn = True
         else:
             self.last_user_action = "wrong-card"
-            self.player_actions.append(f"{self.color_codes['red']}your card {player_card}{self.color_codes['red']} not matching {game_card}{self.color_codes['reset']}")
+            self.player_actions.append(f"{Color.RED}your card {player_card}{Color.RED} not matching {Color.RESET}")
+
+    def check_winer(self):
+        for uid, player in self.players.items():
+            if len(payer.hands.cards) == 0:
+                self.show_winner(player)
 
     def game_cycle(self, first_round):
         current_player, next_player = self.get_players_for_cycle()
@@ -247,6 +282,8 @@ class GameMaster(UIDObject):
             self.drawn_this_turn = False
             self.layed_this_turn = False
             self.player_actions.clear()
+            self.player_actions.extend(self.messages_for_next_player)
+            self.messages_for_next_player.clear()
             self.player_turn = next_player.uid
             self.show_censor_part(next_player)
 
