@@ -12,7 +12,6 @@ from utils import UIDObject, ComponentManager, Color
 import random
 import os
 
-
 class Player(UIDObject):
     def __init__(self, name:str, game_position:int):
         super().__init__()
@@ -29,7 +28,6 @@ class Player(UIDObject):
 
     def card_count(self):
         return len(self.hands.cards)
-
 
 class GameMaster(UIDObject):
     def __init__(self, players: list):
@@ -54,15 +52,13 @@ class GameMaster(UIDObject):
         self.layed_this_turn = False
         self.player_actions = []
         self.messages_for_next_player = []
-        self.draw_card_active = False
-        self.newest_draw_card = None
 
     def _initialize_game(self):
-        print("Laying down first card...")
+        print(f"{Color.YELLOW}Setting up the game...{Color.RESET}")
         self._lay_down_first_card()
-        print("Giving players cards...")
+        print(f"{Color.GREEN}Dealing cards to players...{Color.RESET}")
         self._give_players_cards()
-        print("Filling draw stack...")
+        print(f"{Color.CYAN}Preparing the draw stack...{Color.RESET}")
         self._fill_draw_stack()
 
     def _lay_down_first_card(self):
@@ -71,18 +67,19 @@ class GameMaster(UIDObject):
             random_card_obj = ComponentManager.get_uid_object(random_card_uid)
 
             if random_card_obj.card_type != CardType.JOKER:
-                random_card_obj.transfer_owner("global", "game")
+                random_card_obj.transfer_owner("global", "draw")
                 break
 
     def _give_players_cards(self):
         for player in self.players.values():
             for _ in range(7):
                 self._transfer_random_card("global", player.uid)
+            break
 
     def _fill_draw_stack(self):
         cards_tuple = tuple(self.global_stack.cards.values())
         for card in cards_tuple:
-            card.transfer_owner("global", "draw")
+            card.transfer_owner("global", "game")
 
     def _transfer_random_card(self, from_stack: str, to_stack: str):
         random_card_uid = random.choice(list(self.global_stack.cards))
@@ -100,9 +97,6 @@ class GameMaster(UIDObject):
                 new_card.owner = "global"
                 cards[new_card.uid] = new_card
 
-            self._add_joker_cards(cards, color)
-            self._add_joker_cards(cards, color)
-            self._add_joker_cards(cards, color)
             self._add_joker_cards(cards, color)
 
         return cards
@@ -141,25 +135,25 @@ class GameMaster(UIDObject):
         next_position = (current_position + self.game_direction) % len(self.players)
         return next_position
 
-    def show_winner(self, winner:Player):
+    def show_winner(self, winner: Player):
         os.system("clear")
         print(f"{Color.ORANGE}#############################################################{Color.RESET}")
         print(f"{Color.BG_GREEN}{' '*len('#############################################################')}\n{Color.RESET}" * 6, end="")
-        win_str = f"{Color.DARK_GRAY}Player {Color.WHITE}{winner.name}{Color.DARK_GRAY} won the game{Color.RESET}"
+        win_str = f"{Color.DARK_GRAY}Player {Color.WHITE}{winner.name}{Color.DARK_GRAY} has conquered the game!{Color.RESET}"
         print(f"\r\r{Color.BG_GREEN}{win_str}{Color.BG_GREEN}{' '*(3*(len('#############################################################')-len(win_str)))}{Color.RESET}")
         print(f"{Color.BG_GREEN}{' '*len('#############################################################')}\n{Color.RESET}" * 6)
         print(f"{Color.ORANGE}#############################################################{Color.RESET}")
-        input(f"{Color.MAGENTA}Press enter to continue{Color.RESET}")
+        input(f"{Color.MAGENTA}Press Enter to bask in the glory of the victor!{Color.RESET}")
         os.system("clear")
 
     def show_censor_part(self, player: Player):
         os.system("clear")
         print(f"{Color.ORANGE}#############################################################{Color.RESET}")
         print("\n" * 6)
-        print(f" {Color.LIGHT_YELLOW}Next player please: {Color.LIGHT_RED}{player.name}{Color.RESET}")
+        print(f"{Color.LIGHT_YELLOW}Next player, please step up: {Color.LIGHT_RED}{player.name}{Color.RESET}")
         print("\n" * 6)
         print(f"{Color.ORANGE}#############################################################{Color.RESET}")
-        input(f"{Color.MAGENTA}Press enter to continue{Color.RESET}")
+        input(f"{Color.MAGENTA}Press Enter to continue the chaos!{Color.RESET}")
         os.system("clear")
 
     def show_current_player_deck(self, player: Player):
@@ -167,36 +161,45 @@ class GameMaster(UIDObject):
         others_hands = self._get_others_hands(player)
 
         print(f"{Color.ORANGE}=================================================={Color.RESET}",
-              f"{Color.LIGHT_YELLOW}Player turn:{Color.RESET} {player.name}",
-              f"{Color.LIGHT_YELLOW}Top card:{Color.RESET} {self.game_stack.last_added_card}",
-              f"{Color.LIGHT_YELLOW}Other players' decks:{Color.RESET}\n{others_hands}",
-              f"{Color.LIGHT_WHITE}On your hands:{Color.RESET}\n{player.hands}",
+              f"{Color.LIGHT_YELLOW}It's your turn, {Color.LIGHT_RED}{player.name}{Color.LIGHT_YELLOW}!{Color.RESET}",
+              f"{Color.LIGHT_YELLOW}Top card on the stack:{Color.RESET} {self.game_stack.last_added_card}",
+              f"{Color.LIGHT_YELLOW}Rival players' decks:{Color.RESET}\n{others_hands}",
+              f"{Color.LIGHT_WHITE}Your cards:{Color.RESET}\n{player.hands}",
               sep="\n")
         print("")
         for line in self.player_actions:
             print(line)
         print("")
         
-        player_action= input(f"{Color.LIGHT_YELLOW}Choose your action:\n"
-                             f"{Color.LIGHT_YELLOW}Enter a number from {Color.LIGHT_RED}1{Color.LIGHT_YELLOW} to {Color.LIGHT_RED}{len(player.hands.cards)}{Color.LIGHT_YELLOW} for the corresponding card in your deck,\n{Color.RESET}"
-                             f"{Color.LIGHT_RED}draw{Color.LIGHT_YELLOW} to take a card, or {Color.LIGHT_RED}skip{Color.LIGHT_YELLOW} to switch to next player.\n{Color.RESET}"
-                             f"{Color.LIGHT_YELLOW}What will it be, {Color.LIGHT_RED}{player.name}{Color.LIGHT_YELLOW}?\nAction:{Color.LIGHT_CYAN}")
+        player_action = input(f"{Color.LIGHT_YELLOW}What will you do?\n"
+                              f"{Color.LIGHT_YELLOW}Type a number from {Color.LIGHT_RED}1{Color.LIGHT_YELLOW} to {Color.LIGHT_RED}{len(player.hands.cards)}{Color.LIGHT_YELLOW} for the corresponding card in your hand,\n{Color.RESET}"
+                              f"{Color.LIGHT_RED}draw{Color.LIGHT_YELLOW} to take a card, or {Color.LIGHT_RED}skip{Color.LIGHT_YELLOW} to pass your turn.\n{Color.RESET}"
+                              f"{Color.LIGHT_YELLOW}Choose wisely, {Color.LIGHT_RED}{player.name}{Color.LIGHT_YELLOW}...\nAction: {Color.LIGHT_CYAN}")
         print(Color.RESET)
         return player_action
     
     def _get_others_hands(self, player: Player):
-        others_hands = ""
+        others_hands = []
         for _, other in ComponentManager.iterate_uid_objects(Player):
             if other.uid != player.uid:
-                others_hands += f"{other.name} {other.card_count()}\n"
-        return others_hands
+                others_hands.append(f"  {other.name}: {other.card_count()} cards")
+            else:
+                others_hands.append(f">>{other.name}: {other.card_count()} cards")
+                
+        lenght_player = len(others_hands)#
+        game_direction = self.game_direction
+        for index, line in enumerate(others_hands):
+            if index == 0 and game_direction == -1:
+                others_hands[index] = r"/\ " + others_hands[index]
+            elif index == lenght_player-1 and game_direction == 1:
+                others_hands[index] = r"\/ " + others_hands[index]
+            else:
+                others_hands[index] = r"|| " + others_hands[index]
+                
+        return "\n".join(others_hands) + "\n"
 
     def make_player_action(self, current_player, next_player, action: str):
-        if action == "draw" and (not (self.drawn_this_turn or self.layed_this_turn) or self.draw_card_active):
-            if self.draw_card_active:
-                self.newest_draw_card.give_out_draw(current_player)
-                self.draw_card_active = False
-                return
+        if action == "draw" and not (self.drawn_this_turn or self.layed_this_turn):
             self._draw_card(current_player)
             return
         if action == "next" and (self.drawn_this_turn or self.layed_this_turn):
@@ -206,16 +209,16 @@ class GameMaster(UIDObject):
             self._play_card_action(current_player, next_player, action)
             return
 
-        self.last_user_action = f"invalid action {action}"
+        self.last_user_action = f"Invalid action: {action}"
         self.show_current_player_deck(current_player)
         
     def _draw_card(self, current_player):
-        # Draw a card from the draw stack
-        card = self.draw_stack.get_card_per_index(-1)  # Get the last card
+        draw_stack_len = len(self.draw_stack.cards)
+        card = self.draw_stack.get_card_per_index(draw_stack_len - 1)
         card.transfer_owner("draw", current_player.uid, new_card=True)
         self.last_user_action = "draw"
         self.drawn_this_turn = True
-        self.player_actions.append(f"{Color.CYAN}You got {card.render()} {Color.CYAN}from stack{Color.RESET}")
+        self.player_actions.append(f"{Color.CYAN}You drew {card.render()} {Color.CYAN}from the stack.{Color.RESET}")
         
     def _is_valid_card_to_play(self, game_card, player_card):
         if player_card.card_type == CardType.JOKER:
@@ -224,7 +227,6 @@ class GameMaster(UIDObject):
             return self._is_valid_number_card(game_card, player_card)
 
     def _is_valid_joker_card(self, game_card, player_card):
-        # Logic for validating a JOKER card
         if player_card.color == CardColor.NO_COLOR:
             return True
         if game_card.card_type == CardType.JOKER:
@@ -232,9 +234,8 @@ class GameMaster(UIDObject):
         return game_card.color == player_card.color
 
     def _is_valid_number_card(self, game_card, player_card):
-        # Logic for validating a NUMBER card
         if game_card.card_type == CardType.JOKER:
-            return False  # Number cards can't match JOKER attributes
+            return False
         return game_card.color == player_card.color or game_card.number == player_card.number
 
         
@@ -243,7 +244,7 @@ class GameMaster(UIDObject):
             index = int(action)
         except ValueError:
             self.last_user_action = "invalid"
-            self.player_actions.append(f"{Color.RED}'{action}' is invalid{Color.RESET}")
+            self.player_actions.append(f"{Color.RED}'{action}' is not a valid move.{Color.RESET}")
             return
 
         game_card = self.game_stack.last_added_card
@@ -259,15 +260,15 @@ class GameMaster(UIDObject):
             if action_response is not None:
                 self.player_actions.append(action_response)
             else:
-                self.player_actions.append(f"{Color.GREEN}you player the card {player_card}")
+                self.player_actions.append(f"{Color.GREEN}You played the card {player_card}")
             self.layed_this_turn = True
         else:
             self.last_user_action = "wrong-card"
-            self.player_actions.append(f"{Color.RED}your card {player_card}{Color.RED} not matching {Color.RESET}")
+            self.player_actions.append(f"{Color.RED}Your card {player_card} doesn't match the top card!{Color.RESET}")
 
-    def check_winer(self):
+    def check_winner(self):
         for uid, player in self.players.items():
-            if len(payer.hands.cards) == 0:
+            if len(player.hands.cards) == 0:
                 self.show_winner(player)
 
     def game_cycle(self, first_round):
@@ -276,7 +277,6 @@ class GameMaster(UIDObject):
             self.show_censor_part(current_player)
         player_action = self.show_current_player_deck(current_player)
         self.make_player_action(current_player, next_player, player_action)
-        #input(f"{self.last_user_action=}")
         if self.last_user_action == "next" and (self.drawn_this_turn or self.layed_this_turn):
             current_player.hands.clear_new_flag()
             self.drawn_this_turn = False
@@ -291,5 +291,15 @@ class GameMaster(UIDObject):
         first_round = True
         while self.game_active:
             self.last_user_action = None
+            if len(self.draw_stack.cards) < 10:
+                first_card = self.game_stack.last_added_card
+                self.game_stack.shuffle_deck()
+                card_tuples = [(uid, card) for uid, card in self.game_stack.cards.items()]
+                for uid, card in card_tuples:
+                    card.transfer_owner("game", "draw")
+                first_card.transfer_owner("draw", "game")
+                self.game_stack.last_added_card = first_card
+                
             self.game_cycle(first_round)
             first_round = False
+            

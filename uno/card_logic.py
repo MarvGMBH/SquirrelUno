@@ -9,6 +9,7 @@ try:
 except ImportError:
     pass
 
+
 class CardType(Enum):
     NUMBER = "number"
     JOKER = "joker"
@@ -16,9 +17,10 @@ class CardType(Enum):
 class CardColor(Enum):
     NO_COLOR = "no_color"
     RED = "red"
-    GREEN = "green"
+    GRENN = "green"
     BLUE = "blue"
     YELLOW = "yellow"
+
 
 class Card(UIDObject):
     def __init__(self, card_type: CardType):
@@ -93,7 +95,6 @@ class NumberCard(Card):
 
         return f"{new_tag}{self.render()}"
 
-
 class JokerCard(Card):
     def __init__(self, color: CardColor, title: str):
         super().__init__(CardType.JOKER)
@@ -101,7 +102,7 @@ class JokerCard(Card):
         self.__title = title
 
     def make_action(self, last_card, current_player, next_player):
-        return f"action {last_card.render()} {current_player.name} vs {next_player.name}", None
+        return f"Action {last_card.render()} {current_player.name} vs {next_player.name}", None
 
     @property
     def color(self):
@@ -136,57 +137,32 @@ class JokerCard(Card):
         
         return f"{new_tag}{self.render()}"
 
-
 class DrawCard(JokerCard):
     def __init__(self, color: CardColor, title: str):
         super().__init__(color, title)
         self.bonus = 0
-
+    
     def make_action(self, last_card, current_player, next_player):
         game_master = ComponentManager.get_component("game_master")
-        
-        if last_card.card_type == CardType.JOKER and isinstance(last_card, DrawCard):
-            self.bonus += last_card.bonus
-            last_card.bonus = 0
-            game_master.newest_draw_card = self
-            game_master.draw_card_active = True
-            game_master.draw_card_stack += self.bonus
-        else:
-            _, count = self.title.split(" ")
-            count = int(count)
-            self.bonus = count
-            game_master.newest_draw_card = self
-            game_master.draw_card_active = True
-            game_master.draw_card_stack = self.bonus
-            return f"{Color.CYAN}Oh, you laid down a {self} card", f"{current_player.name} laid down a {self}. Lay a similar card or type 'draw' to draw cards."
+        _, count = self.title.split(" ")
+        count = int(count)
+        global_cards = ComponentManager.get_component("draw")
 
-        return f"{Color.CYAN}Oh no, there's a {self}{Color.CYAN} active{Color.RESET}", None
-
-    def give_out_draw(self, player: Player):
-        game_master = ComponentManager.get_component("game_master")
         drawn = ""
-
-        for _ in range(game_master.draw_card_stack):
-            if not game_master.draw_stack.cards:
-                game_master._reshuffle_game_stack_into_draw_stack()
-
-            random_card_uid = random.choice(list(game_master.draw_stack.cards))
+        for _ in range(count + self.bonus):
+            random_card_uid = random.choice(list(global_cards.cards))
             random_card_obj = ComponentManager.get_uid_object(random_card_uid)
-            random_card_obj.transfer_owner("draw", player.uid, forced=True, new_card=True)
-            drawn += f"{Color.CYAN} got {random_card_obj.render()}{Color.CYAN} from stack\n"
-        
-        game_master.draw_card_stack = 0
-        return drawn, None
+            random_card_obj.transfer_owner("draw", next_player.uid, forced=True, new_card=True)
+            drawn += f"{Color.CYAN}{next_player.name} drew {random_card_obj.render()}{Color.CYAN} from the stack\n"
+            
+        return f"{Color.LIGHT_YELLOW}You generously gave {next_player.name} more cards!{Color.RESET}", drawn
 
     def __str__(self):
         past_render = super().__str__()
-        _, count = self.title.split(" ")
-        count = int(count)
-        if self.bonus > count:
+        if self.bonus > 0:
             past_render += f" {Color.CYAN}({Color.PINK}+{Color.CYAN}{self.bonus}){Color.RESET}"
         return past_render
-
-
+    
 class ReverseCard(JokerCard):
     def __init__(self, color: CardColor, title: str):
         super().__init__(color, title)
@@ -194,11 +170,10 @@ class ReverseCard(JokerCard):
     def make_action(self, current_player, next_player):
         game_master = ComponentManager.get_component("game_master")
         if len(game_master.players) == 2:
-            return f"{Color.CYAN}oh yeah... you again{Color.RESET}", None
+            return f"{Color.CYAN}Oh, it's still your turn, {current_player.name}!{Color.RESET}", None
         
         game_master.game_direction = 1 if game_master.game_direction == -1 else -1
-        return f"{Color.CYAN}reversed direction :P{Color.RESET}", None
-
+        return f"{Color.CYAN}Game direction has been reversed!{Color.RESET}", None
 
 class Stack(UIDObject):
     def __init__(self, owner: str, cards: dict[str, Card], sorted_stack=False):
@@ -248,4 +223,30 @@ class Stack(UIDObject):
             raise ValueError(f"Card with UID {card_obj.uid} not found in stack")
 
     def __str__(self):
-        return "\n".join(f"{index + 1}: {card}" for index, card in enumerate(self.cards.values()))
+        card_list = list(self.cards.values())
+        num_cards = len(card_list)
+
+        if num_cards <= 10:
+            # Display cards vertically
+            return "\n".join(f"{index + 1}: {card}" for index, card in enumerate(card_list))
+        
+        # Calculate the number of rows and columns needed for more than 10 cards
+        rows = min(10, (num_cards + 3) // 4)
+        columns = (num_cards + rows - 1) // rows
+
+        # Determine the maximum length of card descriptions
+        max_len = max(len(f"{index + 1}: {card}") for index, card in enumerate(card_list))
+
+        result = []
+        for i in range(rows):
+            row = []
+            for j in range(columns):
+                index = i * columns + j
+                if index < num_cards:
+                    card_str = f"{index + 1}: {card_list[index]}"
+                    row.append(f"{card_str:<{max_len}}")  # Left align with fixed width
+                else:
+                    row.append(" " * max_len)  # Fill empty spaces
+            result.append(" | ".join(row))
+
+        return "\n".join(result)
