@@ -16,24 +16,24 @@ class CardType(Enum):
 class CardColor(Enum):
     NO_COLOR = "no_color"
     RED = "red"
-    GRENN = "green"
+    GREEN = "green"
     BLUE = "blue"
     YELLOW = "yellow"
 
 class Card(UIDObject):
-    def __init__(self, card_type:CardType):
+    def __init__(self, card_type: CardType):
         super().__init__()
         self.card_type = card_type
         self.owner = None
         self._new_card = False
 
-    def get_stack_based_on_owner(self, owner_uid:str):
+    def get_stack_based_on_owner(self, owner_uid: str):
         for uid, stack_obj in ComponentManager.iterate_uid_objects(Stack):
             if stack_obj.owner == owner_uid:
                 return stack_obj
         raise ValueError(f"No stack found for owner UID: {owner_uid}")
 
-    def transfer_owner(self, owner_uid:str, other_uid:str, *, forced=False, new_card=False):
+    def transfer_owner(self, owner_uid: str, other_uid: str, *, forced=False, new_card=False):
         if self.owner is None:
             raise ValueError(f"Card cannot be transferred to {other_uid} because it has no previous owner")
         if self.owner != owner_uid and not forced:
@@ -59,7 +59,7 @@ class Card(UIDObject):
         return f"{new_tag}{self.card_type} {self.owner}"
 
 class NumberCard(Card):
-    def __init__(self, number:int, color:CardColor):
+    def __init__(self, number: int, color: CardColor):
         super().__init__(CardType.NUMBER)
         self.__number = number
         self.__color = color
@@ -95,7 +95,7 @@ class NumberCard(Card):
 
 
 class JokerCard(Card):
-    def __init__(self, color:CardColor, title:str):
+    def __init__(self, color: CardColor, title: str):
         super().__init__(CardType.JOKER)
         self.__color = color
         self.__title = title
@@ -136,6 +136,7 @@ class JokerCard(Card):
         
         return f"{new_tag}{self.render()}"
 
+
 class DrawCard(JokerCard):
     def __init__(self, color: CardColor, title: str):
         super().__init__(color, title)
@@ -144,38 +145,37 @@ class DrawCard(JokerCard):
     def make_action(self, last_card, current_player, next_player):
         game_master = ComponentManager.get_component("game_master")
         
-        if last_card.card_type == CardType.JOKER and isinstance(last_card, DrawCard) and self.bonus > 0:
+        if last_card.card_type == CardType.JOKER and isinstance(last_card, DrawCard):
             self.bonus += last_card.bonus
             last_card.bonus = 0
             game_master.newest_draw_card = self
             game_master.draw_card_active = True
-            input(f"{self} {self.bonus=} {last_card.bonus=}")
+            game_master.draw_card_stack += self.bonus
         else:
             _, count = self.title.split(" ")
             count = int(count)
             self.bonus = count
             game_master.newest_draw_card = self
             game_master.draw_card_active = True
-            input(f"{self} {self.bonus=}")
+            game_master.draw_card_stack = self.bonus
             return f"{Color.CYAN}Oh, you laid down a {self} card", f"{current_player.name} laid down a {self}. Lay a similar card or type 'draw' to draw cards."
 
         return f"{Color.CYAN}Oh no, there's a {self}{Color.CYAN} active{Color.RESET}", None
 
     def give_out_draw(self, player: Player):
-        _, count = self.title.split(" ")
-        count = int(count)
-        global_cards = ComponentManager.get_component("draw")
+        game_master = ComponentManager.get_component("game_master")
         drawn = ""
 
-        for _ in range(count + self.bonus):
-            if not global_cards.cards:
+        for _ in range(game_master.draw_card_stack):
+            if not game_master.draw_stack.cards:
                 game_master._reshuffle_game_stack_into_draw_stack()
 
-            random_card_uid = random.choice(list(global_cards.cards))
+            random_card_uid = random.choice(list(game_master.draw_stack.cards))
             random_card_obj = ComponentManager.get_uid_object(random_card_uid)
             random_card_obj.transfer_owner("draw", player.uid, forced=True, new_card=True)
             drawn += f"{Color.CYAN} got {random_card_obj.render()}{Color.CYAN} from stack\n"
-        self.bonus = -1
+        
+        game_master.draw_card_stack = 0
         return drawn, None
 
     def __str__(self):
@@ -186,8 +186,9 @@ class DrawCard(JokerCard):
             past_render += f" {Color.CYAN}({Color.PINK}+{Color.CYAN}{self.bonus}){Color.RESET}"
         return past_render
 
+
 class ReverseCard(JokerCard):
-    def __init__(self, color:CardColor, title:str):
+    def __init__(self, color: CardColor, title: str):
         super().__init__(color, title)
         
     def make_action(self, current_player, next_player):
@@ -198,8 +199,9 @@ class ReverseCard(JokerCard):
         game_master.game_direction = 1 if game_master.game_direction == -1 else -1
         return f"{Color.CYAN}reversed direction :P{Color.RESET}", None
 
+
 class Stack(UIDObject):
-    def __init__(self, owner:str, cards:dict[str, Card], sorted_stack=False):
+    def __init__(self, owner: str, cards: dict[str, Card], sorted_stack=False):
         super().__init__()
         self.sorted_stack = sorted_stack
         card_list = cards.items()
@@ -225,13 +227,13 @@ class Stack(UIDObject):
         for uid, card_obj in self.cards.items():
             card_obj.clear_new_flag()
 
-    def get_card_per_index(self, index:int):
+    def get_card_per_index(self, index: int):
         try:
             return list(self.cards.values())[index]
         except IndexError:
             raise ValueError(f"No card at index: {index}")
 
-    def add_card(self, card_obj:Card, new_flag=False):
+    def add_card(self, card_obj: Card, new_flag=False):
         if new_flag:
             card_obj.set_new_card()
         self.cards[card_obj.uid] = card_obj
@@ -239,7 +241,7 @@ class Stack(UIDObject):
         if self.sorted_stack:
             self.cards = OrderedDict(sorted(self.cards.items(), key=lambda item: item[1].color.value))
 
-    def remove_card(self, card_obj:Card):
+    def remove_card(self, card_obj: Card):
         if card_obj.uid in self.cards:
             del self.cards[card_obj.uid]
         else:
