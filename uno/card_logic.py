@@ -9,33 +9,61 @@ try:
 except ImportError:
     pass
 
-
 class CardType(Enum):
+    """
+    Enum for card types.
+    """
     NUMBER = "number"
     JOKER = "joker"
 
 class CardColor(Enum):
+    """
+    Enum for card colors.
+    """
     NO_COLOR = "no_color"
     RED = "red"
-    GRENN = "green"
+    GREEN = "green"
     BLUE = "blue"
     YELLOW = "yellow"
 
-
 class Card(UIDObject):
+    """
+    Base class for all cards.
+    """
     def __init__(self, card_type: CardType):
+        """
+        Initializes the card with a type.
+        """
         super().__init__()
         self.card_type = card_type
         self.owner = None
         self._new_card = False
 
     def get_stack_based_on_owner(self, owner_uid: str):
+        """
+        Gets the stack based on the owner UID.
+
+        Args:
+            owner_uid (str): The UID of the owner.
+
+        Returns:
+            Stack: The stack owned by the owner UID.
+        """
         for uid, stack_obj in ComponentManager.iterate_uid_objects(Stack):
             if stack_obj.owner == owner_uid:
                 return stack_obj
         raise ValueError(f"No stack found for owner UID: {owner_uid}")
 
     def transfer_owner(self, owner_uid: str, other_uid: str, *, forced=False, new_card=False):
+        """
+        Transfers the card to a new owner.
+
+        Args:
+            owner_uid (str): The UID of the current owner.
+            other_uid (str): The UID of the new owner.
+            forced (bool, optional): If True, force the transfer. Defaults to False.
+            new_card (bool, optional): If True, mark as new card. Defaults to False.
+        """
         if self.owner is None:
             raise ValueError(f"Card cannot be transferred to {other_uid} because it has no previous owner")
         if self.owner != owner_uid and not forced:
@@ -49,32 +77,56 @@ class Card(UIDObject):
         self.owner = other_uid
     
     def set_new_card(self):
+        """
+        Marks the card as new.
+        """
         self._new_card = True
     
     def clear_new_flag(self):
+        """
+        Clears the new card flag.
+        """
         self._new_card = False
 
     def __str__(self):
+        """
+        String representation of the card.
+        """
         new_tag = ""
         if self._new_card:
             new_tag = "NEW "
         return f"{new_tag}{self.card_type} {self.owner}"
 
 class NumberCard(Card):
+    """
+    Represents a numbered card.
+    """
     def __init__(self, number: int, color: CardColor):
+        """
+        Initializes a numbered card with a number and color.
+        """
         super().__init__(CardType.NUMBER)
         self.__number = number
         self.__color = color
 
     @property
     def number(self):
+        """
+        Returns the number of the card.
+        """
         return self.__number
 
     @property
     def color(self):
+        """
+        Returns the color of the card.
+        """
         return self.__color
 
     def render(self):
+        """
+        Renders the card with color.
+        """
         color_codes = {
             'red': Color.RED,
             'blue': Color.BLUE,
@@ -89,6 +141,9 @@ class NumberCard(Card):
         return f"{color_start}{self.color.value} {self.number}{color_end}"
 
     def __str__(self):
+        """
+        String representation of the numbered card.
+        """
         new_tag = ""
         if self._new_card:
             new_tag = f"{Color.LIGHT_GREEN}NEW {Color.RESET}"
@@ -96,23 +151,50 @@ class NumberCard(Card):
         return f"{new_tag}{self.render()}"
 
 class JokerCard(Card):
+    """
+    Represents a joker card.
+    """
     def __init__(self, color: CardColor, title: str):
+        """
+        Initializes a joker card with a color and title.
+        """
         super().__init__(CardType.JOKER)
         self.__color = color
         self.__title = title
 
     def make_action(self, last_card, current_player, next_player):
+        """
+        Executes the action of the joker card.
+
+        Args:
+            last_card (Card): The last played card.
+            current_player (Player): The current player.
+            next_player (Player): The next player.
+
+        Returns:
+            str: Description of the action.
+            None: Placeholder for additional action (if any).
+        """
         return f"Action {last_card.render()} {current_player.name} vs {next_player.name}", None
 
     @property
     def color(self):
+        """
+        Returns the color of the joker card.
+        """
         return self.__color
 
     @property
     def title(self):
+        """
+        Returns the title of the joker card.
+        """
         return self.__title
     
     def render(self):
+        """
+        Renders the joker card with color.
+        """
         color_codes = {
             'red': Color.RED,
             'blue': Color.BLUE,
@@ -131,6 +213,9 @@ class JokerCard(Card):
             return f"{color_start}{self.title}{color_end}"
 
     def __str__(self):
+        """
+        String representation of the joker card.
+        """
         new_tag = ""
         if self._new_card:
             new_tag = f"{Color.LIGHT_MAGENTA}NEW {Color.RESET}"
@@ -138,11 +223,29 @@ class JokerCard(Card):
         return f"{new_tag}{self.render()}"
 
 class DrawCard(JokerCard):
+    """
+    Represents a draw card (special type of joker card).
+    """
     def __init__(self, color: CardColor, title: str):
+        """
+        Initializes a draw card with a color and title.
+        """
         super().__init__(color, title)
         self.bonus = 0
     
     def make_action(self, last_card, current_player, next_player):
+        """
+        Executes the action of the draw card.
+
+        Args:
+            last_card (Card): The last played card.
+            current_player (Player): The current player.
+            next_player (Player): The next player.
+
+        Returns:
+            str: Description of the action.
+            str: Description of cards drawn by next player.
+        """
         game_master = ComponentManager.get_component("game_master")
         _, count = self.title.split(" ")
         count = int(count)
@@ -158,16 +261,37 @@ class DrawCard(JokerCard):
         return f"{Color.LIGHT_YELLOW}You generously gave {next_player.name} more cards!{Color.RESET}", drawn
 
     def __str__(self):
+        """
+        String representation of the draw card.
+        """
         past_render = super().__str__()
         if self.bonus > 0:
             past_render += f" {Color.CYAN}({Color.PINK}+{Color.CYAN}{self.bonus}){Color.RESET}"
         return past_render
     
 class ReverseCard(JokerCard):
+    """
+    Represents a reverse card (special type of joker card).
+    """
     def __init__(self, color: CardColor, title: str):
+        """
+        Initializes a reverse card with a color and title.
+        """
         super().__init__(color, title)
         
     def make_action(self, last_card, current_player, next_player):
+        """
+        Executes the action of the reverse card.
+
+        Args:
+            last_card (Card): The last played card.
+            current_player (Player): The current player.
+            next_player (Player): The next player.
+
+        Returns:
+            str: Description of the action.
+            None: Placeholder for additional action (if any).
+        """
         game_master = ComponentManager.get_component("game_master")
         if len(game_master.players) == 2:
             return f"{Color.CYAN}Oh, it's still your turn, {current_player.name}!{Color.RESET}", None
@@ -176,7 +300,18 @@ class ReverseCard(JokerCard):
         return f"{Color.CYAN}Game direction has been reversed!{Color.RESET}", None
 
 class Stack(UIDObject):
+    """
+    Represents a stack of cards.
+    """
     def __init__(self, owner: str, cards: dict[str, Card], sorted_stack=False):
+        """
+        Initializes a stack with an owner and cards.
+
+        Args:
+            owner (str): The owner of the stack.
+            cards (dict[str, Card]): The cards in the stack.
+            sorted_stack (bool, optional): If True, the stack is sorted. Defaults to False.
+        """
         super().__init__()
         self.sorted_stack = sorted_stack
         card_list = cards.items()
@@ -187,6 +322,12 @@ class Stack(UIDObject):
         self.last_added_card = None
         
     def shuffle_deck(self, remain_last_card=False):
+        """
+        Shuffles the deck.
+
+        Args:
+            remain_last_card (bool, optional): If True, the last card remains in place. Defaults to False.
+        """
         if remain_last_card:
             last_card_uid = self.last_added_card.uid
         
@@ -199,16 +340,35 @@ class Stack(UIDObject):
             self.cards[last_card_uid] = last_card
     
     def clear_new_flag(self):
+        """
+        Clears the new card flag for all cards in the stack.
+        """
         for uid, card_obj in self.cards.items():
             card_obj.clear_new_flag()
 
     def get_card_per_index(self, index: int):
+        """
+        Gets a card by index.
+
+        Args:
+            index (int): The index of the card.
+
+        Returns:
+            Card: The card at the specified index.
+        """
         try:
             return list(self.cards.values())[index]
         except IndexError:
             raise ValueError(f"No card at index: {index}")
 
     def add_card(self, card_obj: Card, new_flag=False):
+        """
+        Adds a card to the stack.
+
+        Args:
+            card_obj (Card): The card to add.
+            new_flag (bool, optional): If True, marks the card as new. Defaults to False.
+        """
         if new_flag:
             card_obj.set_new_card()
         self.cards[card_obj.uid] = card_obj
@@ -217,12 +377,21 @@ class Stack(UIDObject):
             self.cards = OrderedDict(sorted(self.cards.items(), key=lambda item: item[1].color.value))
 
     def remove_card(self, card_obj: Card):
+        """
+        Removes a card from the stack.
+
+        Args:
+            card_obj (Card): The card to remove.
+        """
         if card_obj.uid in self.cards:
             del self.cards[card_obj.uid]
         else:
             raise ValueError(f"Card with UID {card_obj.uid} not found in stack")
 
     def __str__(self):
+        """
+        String representation of the stack.
+        """
         card_list = list(self.cards.values())
         num_cards = len(card_list)
 

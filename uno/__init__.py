@@ -3,9 +3,15 @@ import os
 import time
 
 def clear_screen():
+    """
+    Clears the terminal screen.
+    """
     os.system('clear')
 
 def display_logo():
+    """
+    Displays the UNO game logo.
+    """
     uno_logo = """
     
     __    __  __  __    __ 
@@ -19,6 +25,9 @@ def display_logo():
     input(f"{Color.MAGENTA}Press Enter to continue...{Color.RESET}")
 
 def display_creator_message():
+    """
+    Displays the creator message on the screen.
+    """
     creator_message = (f"{Color.ORANGE}#############################################################{Color.RESET}\n"
                        f"{Color.BG_GREEN}{' '*61}{Color.RESET}\n"
                        f"{Color.BG_GREEN}{' '*61}{Color.RESET}\n"
@@ -30,6 +39,12 @@ def display_creator_message():
     input(f"{Color.MAGENTA}Press Enter to continue...{Color.RESET}")
 
 def ask_players():
+    """
+    Prompts for player names and returns a list of players.
+    
+    Returns:
+        list: List of player names.
+    """
     players = []
     while len(players) < 2:
         clear_screen()
@@ -50,6 +65,9 @@ def ask_players():
             time.sleep(2)
 
 def tutorial():
+    """
+    Displays a tutorial for the UNO game.
+    """
     pages = [
         (f"{Color.ORANGE}#############################################################{Color.RESET}\n"
          f"{Color.LIGHT_BLUE}UNO Game Tutorial{Color.RESET}\n"
@@ -77,6 +95,12 @@ def tutorial():
         input()
 
 def main(debug_active: bool):
+    """
+    Main function to start the UNO game.
+    
+    Args:
+        debug_active (bool): Flag to activate debug mode.
+    """
     clear_screen()
     display_logo()
     clear_screen()

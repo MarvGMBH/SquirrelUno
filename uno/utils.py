@@ -3,6 +3,9 @@ import secrets
 import string
 
 class Color:
+    """
+    Class to define color codes for terminal output.
+    """
     # Basic text colors
     BLACK = '\033[30m'
     RED = '\033[31m'
@@ -68,30 +71,53 @@ class Color:
     RESET = '\033[0m'
 
 class UIDObject:
-    """Base class for objects with unique identifiers."""
+    """
+    Base class for objects with unique identifiers.
+    """
 
     _objects = {}
 
     def __init__(self):
+        """
+        Initializes a UIDObject and assigns a unique identifier.
+        """
         self.__uid = self._generate_8_char_alphanumeric_uid()
         self._objects[self.uid] = self
 
     @classmethod
     def iterate(cls, iterate_type:UIDObject):
-        """Yield UID and object for all instances of the given type."""
+        """
+        Yield UID and object for all instances of the given type.
+
+        Args:
+            iterate_type (UIDObject): The type of UIDObject to iterate over.
+        """
         for uid, obj in cls._objects.items():
             if isinstance(obj, iterate_type):
                 yield uid, obj
 
-
     @classmethod
     def register(cls, uid:str, new_object:UIDObject):
-        """Register new UID object"""
+        """
+        Register new UID object.
+
+        Args:
+            uid (str): The unique identifier for the object.
+            new_object (UIDObject): The new object to register.
+        """
         cls._objects[uid] = new_object
 
     @classmethod
     def get(cls, uid:str):
-        """Get an object by its UID."""
+        """
+        Get an object by its UID.
+
+        Args:
+            uid (str): The unique identifier of the object.
+
+        Returns:
+            UIDObject: The object with the given UID.
+        """
         if uid in cls._objects:
             return cls._objects[uid]
         else:
@@ -99,7 +125,12 @@ class UIDObject:
 
     @classmethod
     def remove(cls, uid:str):
-        """Remove an object by its UID."""
+        """
+        Remove an object by its UID.
+
+        Args:
+            uid (str): The unique identifier of the object.
+        """
         if uid in cls._objects:
             del cls._objects[uid]
         else:
@@ -107,58 +138,115 @@ class UIDObject:
 
     @staticmethod
     def _generate_8_char_alphanumeric_uid():
-        """Generate an 8-character alphanumeric UID."""
+        """
+        Generate an 8-character alphanumeric UID.
+
+        Returns:
+            str: The generated UID.
+        """
         alphabet = string.ascii_letters + string.digits
         return ''.join(secrets.choice(alphabet) for _ in range(8))
 
     @property
     def uid(self):
-        """Return the UID of the object."""
+        """
+        Return the UID of the object.
+
+        Returns:
+            str: The UID of the object.
+        """
         return self.__uid
 
-
 class ComponentManager:
-    """Manager class for handling component registration and global UIDObject pool."""
+    """
+    Manager class for handling component registration and global UIDObject pool.
+    """
 
     _components = {}
 
     @classmethod
     def register_component(cls, component_id:str, component:object):
-        """Register a new component with a given ID."""
+        """
+        Register a new component with a given ID.
+
+        Args:
+            component_id (str): The unique identifier for the component.
+            component (object): The component to register.
+        """
         if component_id in cls._components:
             raise KeyError(f"Component with ID '{component_id}' already exists.")
         cls._components[component_id] = component
 
     @classmethod
     def delete_component(cls, component_id:str):
-        """Delete a component by its ID."""
+        """
+        Delete a component by its ID.
+
+        Args:
+            component_id (str): The unique identifier of the component to delete.
+        """
         if component_id not in cls._components:
             raise KeyError(f"No component '{component_id}' to delete, because it does not exist.")
         del cls._components[component_id]
 
     @classmethod
     def get_component(cls, component_id:str):
-        """Get a component by its ID."""
+        """
+        Get a component by its ID.
+
+        Args:
+            component_id (str): The unique identifier of the component.
+
+        Returns:
+            object: The component with the given ID.
+        """
         if component_id not in cls._components:
             raise KeyError(f"Component with ID '{component_id}' not found.")
         return cls._components[component_id]
 
     @classmethod
-    def register_uid_object(cls, uid:str, new_object:UIDObj):
-        """Register a new UIDObject"""
+    def register_uid_object(cls, uid:str, new_object:UIDObject):
+        """
+        Register a new UIDObject.
+
+        Args:
+            uid (str): The unique identifier for the UIDObject.
+            new_object (UIDObject): The new UIDObject to register.
+        """
         UIDObject.register(uid, new_object)
 
     @classmethod
     def get_uid_object(cls, uid:str):
-        """Get a UIDObject by its UID."""
+        """
+        Get a UIDObject by its UID.
+
+        Args:
+            uid (str): The unique identifier of the UIDObject.
+
+        Returns:
+            UIDObject: The UIDObject with the given UID.
+        """
         return UIDObject.get(uid)
 
     @classmethod
     def remove_uid_object(cls, uid:str):
-        """Remove a UIDObject by its UID."""
+        """
+        Remove a UIDObject by its UID.
+
+        Args:
+            uid (str): The unique identifier of the UIDObject to remove.
+        """
         UIDObject.remove(uid)
 
     @classmethod
     def iterate_uid_objects(cls, iterate_type:UIDObject):
-        """Iterate over UIDObjects of a specific type."""
+        """
+        Iterate over UIDObjects of a specific type.
+
+        Args:
+            iterate_type (UIDObject): The type of UIDObject to iterate over.
+
+        Returns:
+            generator: A generator yielding UID and UIDObject pairs.
+        """
         return UIDObject.iterate(iterate_type)
