@@ -1,6 +1,19 @@
 from __future__ import annotations
 import secrets
 import string
+import platform
+import os
+
+CURRENT_OS_SYSTEM = platform.system()
+
+if CURRENT_OS_SYSTEM == "Windows":
+    def clear_screen():
+        os.system("cls")
+elif CURRENT_OS_SYSTEM == "Linux":
+    def clear_screen():
+        os.system("clear")
+else:
+    raise OSError(f"{CURRENT_OS_SYSTEM} not supported")
 
 class Color:
     """

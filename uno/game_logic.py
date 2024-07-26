@@ -8,7 +8,7 @@ from card_logic import (CardType,
                         ReverseCard,
                         Stack)
 
-from utils import UIDObject, ComponentManager, Color
+from utils import UIDObject, ComponentManager, Color, clear_screen
 import random
 import os
 
@@ -232,7 +232,7 @@ class GameMaster(UIDObject):
         Args:
             winner (Player): The winning player.
         """
-        os.system("clear")
+        clear_screen()
         print(f"{Color.ORANGE}#############################################################{Color.RESET}")
         print(f"{Color.BG_GREEN}{' '*len('#############################################################')}\n{Color.RESET}" * 6, end="")
         win_str = f"{Color.DARK_GRAY}Player {Color.WHITE}{winner.name}{Color.DARK_GRAY} has conquered the game!{Color.RESET}"
@@ -240,7 +240,7 @@ class GameMaster(UIDObject):
         print(f"{Color.BG_GREEN}{' '*len('#############################################################')}\n{Color.RESET}" * 6)
         print(f"{Color.ORANGE}#############################################################{Color.RESET}")
         input(f"{Color.MAGENTA}Press Enter to bask in the glory of the victor!{Color.RESET}")
-        os.system("clear")
+        clear_screen()
 
     def show_censor_part(self, player: Player):
         """
@@ -249,14 +249,14 @@ class GameMaster(UIDObject):
         Args:
             player (Player): The next player.
         """
-        os.system("clear")
+        clear_screen()
         print(f"{Color.ORANGE}#############################################################{Color.RESET}")
         print("\n" * 6)
         print(f"{Color.LIGHT_YELLOW}Next player, please step up: {Color.LIGHT_RED}{player.name}{Color.RESET}")
         print("\n" * 6)
         print(f"{Color.ORANGE}#############################################################{Color.RESET}")
         input(f"{Color.MAGENTA}Press Enter to continue the chaos!{Color.RESET}")
-        os.system("clear")
+        clear_screen()
 
     def show_current_player_deck(self, player: Player):
         """
@@ -268,7 +268,7 @@ class GameMaster(UIDObject):
         Returns:
             str: The player's chosen action.
         """
-        os.system("clear")
+        clear_screen()
         others_hands = self._get_others_hands(player)
 
         print(f"{Color.ORANGE}=================================================={Color.RESET}",

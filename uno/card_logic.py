@@ -11,7 +11,7 @@ except ImportError:
 
 class CardType(Enum):
     """
-    Enum for card types.
+    Enum for card types.6
     """
     NUMBER = "number"
     JOKER = "joker"
@@ -30,12 +30,13 @@ class Card(UIDObject):
     """
     Base class for all cards.
     """
-    def __init__(self, card_type: CardType):
+    def __init__(self, card_type: CardType, color:CardColor):
         """
         Initializes the card with a type.
         """
         super().__init__()
         self.card_type = card_type
+        self._color = color
         self.owner = None
         self._new_card = False
 
@@ -89,7 +90,15 @@ class Card(UIDObject):
         self._new_card = False
         
     def make_action(self):
+        """
+        overwrite function
+        """
+        raise NotImplementedError("Card.make_action")
 
+    @property
+    def color(self):
+        return self._color
+    
     def __str__(self):
         """
         String representation of the card.
@@ -107,9 +116,8 @@ class NumberCard(Card):
         """
         Initializes a numbered card with a number and color.
         """
-        super().__init__(CardType.NUMBER)
+        super().__init__(CardType.NUMBER, color)
         self.__number = number
-        self.__color = color
 
     @property
     def number(self):
@@ -117,13 +125,6 @@ class NumberCard(Card):
         Returns the number of the card.
         """
         return self.__number
-
-    @property
-    def color(self):
-        """
-        Returns the color of the card.
-        """
-        return self.__color
 
     def render(self):
         """
@@ -160,8 +161,7 @@ class JokerCard(Card):
         """
         Initializes a joker card with a color and title.
         """
-        super().__init__(CardType.JOKER)
-        self.__color = color
+        super().__init__(CardType.JOKER, color)
         self.__title = title
 
     def make_action(self, last_card, current_player, next_player):

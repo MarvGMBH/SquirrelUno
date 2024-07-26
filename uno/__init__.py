@@ -1,4 +1,5 @@
 from game_logic import GameMaster, Stack, NumberCard, JokerCard, CardColor
+from utils import clear_screen
 import os
 import time
 
@@ -15,10 +16,6 @@ CYAN = "\033[36m"
 LIGHT_RED = "\033[91m"
 YELLOW = "\033[33m"
 GREEN = "\033[32m"
-
-# Function to clear the terminal screen
-def clear_screen():
-    os.system('clear')
 
 # Function to display the UNO game logo
 def display_logo():
