@@ -89,7 +89,7 @@ class Card(UIDObject):
         """
         self._new_card = False
         
-    def make_action(self):
+    def make_action(self, last_card, current_player, next_player):
         """
         overwrite function
         """

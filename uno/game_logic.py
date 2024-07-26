@@ -364,9 +364,9 @@ class GameMaster(UIDObject):
     
     def _is_same_color(self, game_card, player_card):
         if game_card.color == CardColor.NO_COLOR or player_card.color == CardColor.NO_COLOR:
-            color_match = True
+            return True
         else:
-            color_match = game_card.color == player_card.color
+            return game_card.color == player_card.color
     
     def _is_same_symbol(self, game_card, player_card):
         if type(game_card) is NumberCard and type(player_card) is NumberCard:
