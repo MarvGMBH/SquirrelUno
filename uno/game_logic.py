@@ -361,7 +361,21 @@ class GameMaster(UIDObject):
         self.last_user_action = "draw"
         self.drawn_this_turn = True
         self.player_actions.append(f"{Color.CYAN}You drew {card.render()} {Color.CYAN}from the stack.{Color.RESET}")
-        
+    
+    def _is_same_color(self, game_card, player_card):
+        if game_card.color == CardColor.NO_COLOR or player_card.color == CardColor.NO_COLOR:
+            color_match = True
+        else:
+            color_match = game_card.color == player_card.color
+    
+    def _is_same_symbol(self, game_card, player_card):
+        if type(game_card) is NumberCard and type(player_card) is NumberCard:
+            return game_card.number == player_card.number
+        elif type(game_card) is JokerCard and type(player_card) is JokerCard:
+            return game_card.title == player_card.title
+        elif JokerCard in (type(game_card), type(player_card)):
+            return False
+    
     def _is_valid_card_to_play(self, game_card, player_card):
         """
         Checks if the player's card is valid to play.
@@ -373,42 +387,9 @@ class GameMaster(UIDObject):
         Returns:
             bool: True if the card is valid to play, False otherwise.
         """
-        if player_card.card_type == CardType.JOKER:
-            return self._is_valid_joker_card(game_card, player_card)
-        else:
-            return self._is_valid_number_card(game_card, player_card)
-
-    def _is_valid_joker_card(self, game_card, player_card):
-        """
-        Checks if the joker card is valid to play.
-
-        Args:
-            game_card (Card): The top card on the game stack.
-            player_card (Card): The joker card the player wants to play.
-
-        Returns:
-            bool: True if the card is valid to play, False otherwise.
-        """
-        if player_card.color == CardColor.NO_COLOR:
-            return True
-        if game_card.card_type == CardType.JOKER:
-            return game_card.color == CardColor.NO_COLOR or game_card.color == player_card.color
-        return game_card.color == player_card.color
-
-    def _is_valid_number_card(self, game_card, player_card):
-        """
-        Checks if the numbered card is valid to play.
-
-        Args:
-            game_card (Card): The top card on the game stack.
-            player_card (Card): The numbered card the player wants to play.
-
-        Returns:
-            bool: True if the card is valid to play, False otherwise.
-        """
-        if game_card.card_type == CardType.JOKER:
-            return False
-        return game_card.color == player_card.color or game_card.number == player_card.number
+        color_match = self._is_same_color(game_card, player_card)
+        symbol_match = self._is_same_symbol(game_card, player_card)
+        return color_match or symbol_match
 
     def _play_card_action(self, current_player, next_player, action):
         """
@@ -430,10 +411,9 @@ class GameMaster(UIDObject):
         player_card = current_player.hands.get_card_per_index(index - 1)
         action_response = None
         if self._is_valid_card_to_play(game_card, player_card):
-            if player_card.card_type == CardType.JOKER:
-                action_response, next_player_response = player_card.make_action(self.game_stack.last_added_card, current_player, next_player)
-                if next_player_response is not None:
-                    self.messages_for_next_player.append(next_player_response)
+            action_response, next_player_response = player_card.make_action(self.game_stack.last_added_card, current_player, next_player)
+            if next_player_response is not None:
+                self.messages_for_next_player.append(next_player_response)
             player_card.transfer_owner(current_player.uid, "game")
             self.last_user_action = "played-card"
             if action_response is not None:

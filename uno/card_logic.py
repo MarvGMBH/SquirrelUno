@@ -93,7 +93,7 @@ class Card(UIDObject):
         """
         overwrite function
         """
-        raise NotImplementedError("Card.make_action")
+        return None, None
 
     @property
     def color(self):
@@ -178,13 +178,6 @@ class JokerCard(Card):
             None: Placeholder for additional action (if any).
         """
         return f"Action {last_card.render()} {current_player.name} vs {next_player.name}", None
-
-    @property
-    def color(self):
-        """
-        Returns the color of the joker card.
-        """
-        return self.__color
 
     @property
     def title(self):
