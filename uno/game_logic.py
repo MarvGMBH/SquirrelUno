@@ -304,7 +304,7 @@ class GameMaster(UIDObject):
             if other.uid != player.uid:
                 others_hands.append(f"  {other.name}: {other.card_count()} cards")
             else:
-                others_hands.append(f">>{other.name}: {other.card_count()} cards")
+                others_hands.append(f"{Color.BOLD}>>{other.name}: {other.card_count()}{Color.BOLD} cards{Color.RESET}")
                 
         lenght_player = len(others_hands)#
         game_direction = self.game_direction

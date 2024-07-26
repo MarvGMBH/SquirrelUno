@@ -87,6 +87,8 @@ class Card(UIDObject):
         Clears the new card flag.
         """
         self._new_card = False
+        
+    def make_action(self):
 
     def __str__(self):
         """
@@ -389,9 +391,6 @@ class Stack(UIDObject):
             raise ValueError(f"Card with UID {card_obj.uid} not found in stack")
 
     def __str__(self):
-        """
-        String representation of the stack.
-        """
         card_list = list(self.cards.values())
         num_cards = len(card_list)
 
