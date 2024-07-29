@@ -251,8 +251,19 @@ class DrawCard(JokerCard):
             random_card_uid = random.choice(list(global_cards.cards))
             random_card_obj = ComponentManager.get_uid_object(random_card_uid)
             random_card_obj.transfer_owner("draw", next_player.uid, forced=True, new_card=True)
-            drawn += f"{Color.CYAN}{next_player.name} drew {random_card_obj.render()}{Color.CYAN} from the stack\n"
-            
+            drawn += f"{Color.CYAN}{current_player.name} gave u {random_card_obj.render()}{Color.CYAN} from the stack\n"
+        
+        color = None
+        while color not in ("red", "green", "blue", "yellow"):
+            color = input("pick a color: ")
+        
+        color = {"red": CardColor.RED,
+                 "green": CardColor.GREEN,
+                 "blue": CardColor.BLUE,
+                 "yellow": CardColor.YELLOW}[color]
+        new_mark = MarkerCard(color, self.title)
+        new_mark.owner = "global"
+        new_mark.transfer_owner("global", "game")          
         return f"{Color.LIGHT_YELLOW}You generously gave {next_player.name} more cards!{Color.RESET}", drawn
 
     def __str__(self):
@@ -293,6 +304,16 @@ class ReverseCard(JokerCard):
         
         game_master.game_direction = 1 if game_master.game_direction == -1 else -1
         return f"{Color.CYAN}Game direction has been reversed!{Color.RESET}", None
+
+class MarkerCard(JokerCard):
+    """
+    Marks the next wished color (special type of joker card).
+    """
+    def __init__(self, color: CardColor, title: str):
+        """
+        Initializes a mark card with a color and title.
+        """
+        super().__init__(color, title)
 
 class Stack(UIDObject):
     """
