@@ -10,7 +10,8 @@ from card_logic import (CardType,
 
 from utils import UIDObject, ComponentManager, Color, clear_screen
 import random
-import os
+from network import Networking
+from threading import Thread
 
 class Player(UIDObject):
     """
@@ -28,6 +29,7 @@ class Player(UIDObject):
         self.name = name
         self.game_position = game_position
         self.hands = Stack(self.uid, {}, sorted_stack=True)
+        self.network_obj = None
 
     @classmethod
     def get_uid(cls, name: str):
@@ -54,7 +56,7 @@ class Player(UIDObject):
         """
         return len(self.hands.cards)
 
-class GameMaster(UIDObject):
+class GameMaster(Networking):
     """
     Manages the overall game logic.
     """
@@ -65,7 +67,8 @@ class GameMaster(UIDObject):
         Args:
             players (list): A list of player names.
         """
-        super().__init__()
+        super().__init__(port=5000)
+             
         ComponentManager.register_component("game_master", self)
         self.players = self._init_players(players)
         self.player_turn = Player.get_uid(players[0])
@@ -435,7 +438,7 @@ class GameMaster(UIDObject):
         for uid, player in self.players.items():
             if len(player.hands.cards) == 0:
                 self.show_winner(player)
-
+    
     def game_cycle(self, first_round):
         """
         Executes a game cycle.
@@ -458,7 +461,7 @@ class GameMaster(UIDObject):
             self.player_turn = next_player.uid
             self.show_censor_part(next_player)
 
-    def start(self):
+    def start_game(self):
         """
         Starts the game.
         """
@@ -476,3 +479,11 @@ class GameMaster(UIDObject):
                 
             self.game_cycle(first_round)
             first_round = False
+    
+    def wait_for_players(self):
+        while True:
+            pass
+    
+    def start(self):
+        self.wait_for_players()
+        

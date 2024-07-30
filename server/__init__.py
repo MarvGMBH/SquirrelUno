@@ -1,40 +1,25 @@
 from game_logic import GameMaster, Stack, NumberCard, JokerCard, CardColor
-from utils import clear_screen
-import os
-import time
-
-# ANSI escape codes for colors
-RESET = "\033[0m"
-BOLD = "\033[1m"
-LIGHT_BLUE = "\033[38;5;45m"
-LIGHT_PINK = "\033[38;5;218m"
-WHITE = "\033[38;5;15m"
-MAGENTA = "\033[35m"
-ORANGE = "\033[38;5;208m"
-YELLOW = "\033[33m"
-GREEN = "\033[32m"
-
-
-# Function to display a message from the creator
-def display_creator_message():
-    creator_message = (f"{ORANGE}#############################################################{RESET}\n"
-                       f"{' '*61}\n"
-                       f"{' '*61}\n"
-                       f"{' '*10}{LIGHT_BLUE}{BOLD}G{RESET}{LIGHT_PINK}{BOLD}a{RESET}{WHITE}{BOLD}m{RESET}{LIGHT_PINK}{BOLD}e {RESET}{LIGHT_BLUE}{BOLD}m{RESET}{LIGHT_PINK}{BOLD}a{RESET}{WHITE}{BOLD}d{RESET}{LIGHT_PINK}{BOLD}e {RESET}{LIGHT_BLUE}{BOLD}b{RESET}{LIGHT_PINK}{BOLD}y {RESET}{WHITE}{BOLD}C{RESET}{LIGHT_PINK}{BOLD}h{RESET}{LIGHT_PINK}{BOLD}i{RESET}{LIGHT_BLUE}{BOLD}p{RESET}{LIGHT_PINK}{BOLD}p{RESET}{WHITE}{BOLD}e{RESET}{LIGHT_PINK}{BOLD}r{RESET}{LIGHT_BLUE}{BOLD}f{RESET}{LIGHT_PINK}{BOLD}l{RESET}{WHITE}{BOLD}u{RESET}{LIGHT_PINK}{BOLD}f{RESET}{LIGHT_BLUE}{BOLD}f :P{RESET}\n"
-                       f"{' '*61}\n"
-                       f"{' '*61}\n"
-                       f"{ORANGE}#############################################################{RESET}\n")
-    print(creator_message)
-    input(f"{MAGENTA}Press Enter to continue...{RESET}")
+from threading import Thread
 
 def main():
-    clear_screen()
-    display_creator_message()
-    clear_screen()
+    players = []
+    while True:
+        if len(players) > 5:
+            break
+                
+        name = input("Create Player: ")
+        if name == "#del":
+            del_name = players.pop(-1)
+            print(f"{del_name} deleted")
+        elif name == "go":
+            break
+        else:
+            players.append(name)
     
-    input()
     game = GameMaster(players)
-    game.start()
+    game_thread = Thread(target=game.start)
+    game_thread.start()
+    game.start_server()
 
 if __name__ == "__main__":
     main()
